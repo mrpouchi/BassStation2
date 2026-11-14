@@ -1,0 +1,28 @@
+.chapters {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--space-4);
+}
+.number {
+  font-family: var(--font-mono);
+  color: var(--accent);
+  font-size: var(--text-sm);
+}
+.lessons {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.lessons li {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+}
+.notice {
+  margin-bottom: var(--space-5);
+  color: var(--text-muted);
+}

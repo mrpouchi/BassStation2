@@ -1,0 +1,200 @@
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--inspector-width);
+  gap: var(--space-5);
+  align-items: start;
+}
+.side {
+  position: sticky;
+  top: var(--space-5);
+  max-height: calc(100vh - 2 * var(--space-5));
+  overflow-y: auto;
+  border-radius: var(--radius-lg);
+}
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+.search {
+  flex: 1;
+  min-width: 180px;
+  height: 34px;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+}
+.selectInput {
+  height: 34px;
+  padding: 0 var(--space-2);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+}
+.count {
+  font-size: var(--text-sm);
+  color: var(--text-faint);
+}
+.group {
+  margin-bottom: var(--space-5);
+}
+.groupTitle {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  font-size: var(--text-md);
+  margin-bottom: var(--space-2);
+}
+.groupSummary {
+  font-weight: 400;
+  color: var(--text-faint);
+  font-size: var(--text-sm);
+}
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 0.8fr) minmax(0, 0.9fr) 84px;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: 10px var(--space-4);
+  border: 0;
+  border-top: 1px solid var(--border);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--duration-fast) var(--ease);
+}
+.list > li:first-child .row {
+  border-top: 0;
+}
+.row:hover {
+  background: var(--surface-hover);
+}
+.rowSelected,
+.rowSelected:hover {
+  background: var(--accent-soft);
+}
+.rowName {
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.rowSub {
+  display: block;
+  font-size: var(--text-xs);
+  color: var(--text-faint);
+  font-weight: 400;
+}
+.rowValue {
+  font-size: var(--text-sm);
+}
+.rowBadge {
+  display: flex;
+  justify-content: flex-end;
+}
+.rowMidi {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+.calloutCell {
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--surface-2);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  margin-right: var(--space-2);
+  flex: none;
+}
+.controlRow {
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.6fr) minmax(0, 1.6fr);
+}
+.controlName {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+.keys {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: var(--space-3);
+}
+.key {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.keyBlack {
+  border-top: 3px solid var(--text);
+}
+.keyHead {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--text-xs);
+  color: var(--text-faint);
+}
+.keyLabel {
+  font-weight: 600;
+}
+.keyParam {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-2);
+  border: 0;
+  background: var(--surface-2);
+  border-radius: var(--radius-sm);
+  padding: 4px 8px;
+  font-size: var(--text-sm);
+  cursor: pointer;
+  text-align: left;
+}
+.keyParam:hover {
+  background: var(--accent-soft);
+}
+.keyAction {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+.notice {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  margin-bottom: var(--space-4);
+}
+
+@media (max-width: 1100px) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .side {
+    position: static;
+    max-height: none;
+  }
+}
+@media (max-width: 640px) {
+  .row {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .rowMidi,
+  .rowBadge {
+    display: none;
+  }
+}

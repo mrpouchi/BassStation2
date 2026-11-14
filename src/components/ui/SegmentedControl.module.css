@@ -1,0 +1,37 @@
+.group {
+  display: inline-flex;
+  padding: 3px;
+  gap: 2px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  max-width: 100%;
+  flex-wrap: wrap;
+}
+.option {
+  border: 0;
+  background: transparent;
+  color: var(--text-muted);
+  border-radius: 4px;
+  padding: 3px 10px;
+  font-size: var(--text-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background var(--duration-fast) var(--ease),
+    color var(--duration-fast) var(--ease);
+}
+.option:hover {
+  color: var(--text);
+}
+.selected {
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow-1);
+}
+.full {
+  display: flex;
+}
+.full .option {
+  flex: 1;
+}

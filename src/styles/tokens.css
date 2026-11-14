@@ -1,0 +1,118 @@
+/*
+ * Design tokens. All colours are defined here and re-defined for dark mode.
+ * Theme resolution: [data-theme="light"|"dark"] on <html> wins; otherwise the OS setting.
+ */
+:root {
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', 'JetBrains Mono', Menlo, Consolas, monospace;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.8125rem;
+  --text-md: 0.875rem;
+  --text-lg: 1rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.75rem;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 40px;
+  --space-8: 56px;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-pill: 999px;
+
+  --duration-fast: 120ms;
+  --duration-base: 200ms;
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+
+  --sidebar-width: 236px;
+  --inspector-width: 380px;
+
+  color-scheme: light;
+  --bg: #f5f4f1;
+  --surface: #ffffff;
+  --surface-2: #efeeea;
+  --surface-hover: #f3f2ee;
+  --border: #e2e0da;
+  --border-strong: #cbc8c0;
+  --text: #1b1b1d;
+  --text-muted: #5b5a56;
+  --text-faint: #8a8882;
+  --accent: #c94a12;
+  --accent-hover: #b04010;
+  --accent-soft: #fbeae0;
+  --accent-contrast: #ffffff;
+  --success: #2c7a4b;
+  --success-soft: #e3f2e8;
+  --warning: #9a6200;
+  --warning-soft: #fbf0d9;
+  --info: #2c5f9e;
+  --info-soft: #e4edf8;
+  --danger: #b3261e;
+  --danger-soft: #fbe5e3;
+  --focus-ring: 0 0 0 3px color-mix(in srgb, var(--accent) 35%, transparent);
+  --shadow-1: 0 1px 2px rgb(20 20 20 / 0.06), 0 1px 1px rgb(20 20 20 / 0.04);
+  --shadow-2: 0 8px 24px rgb(20 20 20 / 0.08);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+    --bg: #111113;
+    --surface: #19191c;
+    --surface-2: #212125;
+    --surface-hover: #1f1f23;
+    --border: #2b2b30;
+    --border-strong: #3a3a40;
+    --text: #ececee;
+    --text-muted: #a3a3aa;
+    --text-faint: #6f6f77;
+    --accent: #ee7a3c;
+    --accent-hover: #f38c53;
+    --accent-soft: rgb(238 122 60 / 0.14);
+    --accent-contrast: #1a0d05;
+    --success: #5cbf83;
+    --success-soft: rgb(92 191 131 / 0.14);
+    --warning: #e0ac4a;
+    --warning-soft: rgb(224 172 74 / 0.14);
+    --info: #7aa7e0;
+    --info-soft: rgb(122 167 224 / 0.14);
+    --danger: #ef7d73;
+    --danger-soft: rgb(239 125 115 / 0.14);
+    --shadow-1: 0 1px 2px rgb(0 0 0 / 0.4);
+    --shadow-2: 0 8px 24px rgb(0 0 0 / 0.45);
+  }
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #111113;
+  --surface: #19191c;
+  --surface-2: #212125;
+  --surface-hover: #1f1f23;
+  --border: #2b2b30;
+  --border-strong: #3a3a40;
+  --text: #ececee;
+  --text-muted: #a3a3aa;
+  --text-faint: #6f6f77;
+  --accent: #ee7a3c;
+  --accent-hover: #f38c53;
+  --accent-soft: rgb(238 122 60 / 0.14);
+  --accent-contrast: #1a0d05;
+  --success: #5cbf83;
+  --success-soft: rgb(92 191 131 / 0.14);
+  --warning: #e0ac4a;
+  --warning-soft: rgb(224 172 74 / 0.14);
+  --info: #7aa7e0;
+  --info-soft: rgb(122 167 224 / 0.14);
+  --danger: #ef7d73;
+  --danger-soft: rgb(239 125 115 / 0.14);
+  --shadow-1: 0 1px 2px rgb(0 0 0 / 0.4);
+  --shadow-2: 0 8px 24px rgb(0 0 0 / 0.45);
+}

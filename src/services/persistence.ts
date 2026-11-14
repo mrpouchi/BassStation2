@@ -1,0 +1,59 @@
+import { isThemePreference, usePreferencesStore } from '@/stores/preferencesStore';
+import { usePersistenceStore } from '@/stores/persistenceStore';
+import { useSynthStore } from '@/stores/synthStore';
+import { readKey, writeKey } from './storage/db';
+
+const SAVE_DELAY_MS = 400;
+
+/** Envelope for persisted panel state, so future formats can be migrated. */
+interface StoredPanelState {
+  format: 1;
+  values: unknown;
+}
+
+function isStoredPanelState(v: unknown): v is StoredPanelState {
+  return typeof v === 'object' && v !== null && (v as { format?: unknown }).format === 1;
+}
+
+/**
+ * Restores saved state, then keeps IndexedDB in sync with the stores.
+ * The app stays fully usable if storage is unavailable (e.g. private mode).
+ */
+export async function initPersistence(): Promise<void> {
+  const status = usePersistenceStore.getState();
+  try {
+    const [theme, panel] = await Promise.all([
+      readKey('preferences', 'theme'),
+      readKey('session', 'panel'),
+    ]);
+    if (isThemePreference(theme)) usePreferencesStore.getState().setTheme(theme);
+    if (isStoredPanelState(panel)) {
+      const rejected = useSynthStore.getState().replaceValues(panel.values, 'system');
+      if (rejected.length > 0) console.warn('Ignored invalid stored parameters:', rejected);
+    }
+    status.setStatus('ready');
+  } catch (error) {
+    status.setStatus('unavailable', error instanceof Error ? error.message : String(error));
+    return;
+  }
+
+  usePreferencesStore.subscribe((s, prev) => {
+    if (s.theme !== prev.theme) void writeKey('preferences', 'theme', s.theme).catch(reportError);
+  });
+
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  useSynthStore.subscribe((s, prev) => {
+    if (s.values === prev.values) return;
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      const payload: StoredPanelState = { format: 1, values: s.values };
+      void writeKey('session', 'panel', payload).catch(reportError);
+    }, SAVE_DELAY_MS);
+  });
+}
+
+function reportError(error: unknown): void {
+  usePersistenceStore
+    .getState()
+    .setStatus('unavailable', error instanceof Error ? error.message : String(error));
+}
