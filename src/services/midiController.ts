@@ -209,6 +209,24 @@ export class MidiController {
     return n;
   }
 
+  /**
+   * Send raw bytes at a timestamp (performance.now() timebase) to the selected
+   * output. Used by Play Along; notes are not added to the activity log.
+   * Returns false when no output is connected.
+   */
+  sendTimed(bytes: readonly number[], at: number): boolean {
+    const s = useMidiStore.getState();
+    const out = s.outputId ? this.manager.output(s.outputId) : undefined;
+    if (!out || out.state !== 'connected') return false;
+    out.send(bytes as number[], at);
+    return true;
+  }
+
+  /** The MIDI channel the synth listens on (Global: MIDI Channel). */
+  get midiChannel(): number {
+    return this.channel();
+  }
+
   /** Compatibility test: send a parameter's current value now. */
   testOutput(id: string): boolean {
     const v = useSynthStore.getState().values[id];

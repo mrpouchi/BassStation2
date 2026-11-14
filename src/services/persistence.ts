@@ -4,6 +4,7 @@ import { parseMidiSettings, useMidiStore, type StoredMidiSettings } from '@/stor
 import { parseProgress, serializeProgress, useProgressStore } from '@/stores/progressStore';
 import { useSynthStore } from '@/stores/synthStore';
 import { loadPresets } from './presetRepository';
+import { loadSongs } from './songRepository';
 import { readKey, writeKey } from './storage/db';
 
 const SAVE_DELAY_MS = 400;
@@ -50,6 +51,7 @@ export async function initPersistence(): Promise<void> {
       if (rejected.length > 0) console.warn('Ignored invalid stored parameters:', rejected);
     }
     await loadPresets();
+    await loadSongs();
     status.setStatus('ready');
   } catch (error) {
     status.setStatus('unavailable', error instanceof Error ? error.message : String(error));

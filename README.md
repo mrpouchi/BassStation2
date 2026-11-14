@@ -2,7 +2,8 @@
 
 **An interactive web app for learning subtractive synthesis on the Novation Bass Station II.**
 You turn the knobs of a virtual Bass Station II, see what each one does on live graphs, work through 44
-lessons and 18 challenges, save your own sounds, and can connect a real Bass Station II over USB MIDI.
+lessons and 18 challenges, save your own sounds, play bass lines from MIDI files on your synth, and
+connect a real Bass Station II over USB MIDI.
 
 ![Virtual Bass Station II panel](docs/screenshots/hardware-view.png)
 
@@ -38,8 +39,8 @@ npm run dev            # http://localhost:5173
 | `npm run dev`                                           | Development server                                                                            |
 | `npm run build`                                         | Type-check and production build to `dist/`                                                    |
 | `npm run preview`                                       | Serve the production build                                                                    |
-| `npm test`                                              | 267 unit, data and component tests (Vitest)                                                   |
-| `npm run test:e2e`                                      | 7 end-to-end tests in Chromium (Playwright). Run `npx playwright install chromium` once first |
+| `npm test`                                              | 283 unit, data and component tests (Vitest)                                                   |
+| `npm run test:e2e`                                      | 8 end-to-end tests in Chromium (Playwright). Run `npx playwright install chromium` once first |
 | `npm run lint` / `npm run typecheck` / `npm run format` | ESLint, TypeScript, Prettier                                                                  |
 
 Requirements: Node 20 or newer. Use desktop **Chrome** for the hardware (Web MIDI) features. Web MIDI only
@@ -129,6 +130,21 @@ server.
 
 A challenge shows a takeaway once solved, links to its related lesson and records attempts.
 
+### Play Along
+
+- **Import MIDI files** (`.mid`), several at once, by button or drag and drop. Backing tracks exported
+  from iReal Pro work directly. Files stay in your browser (IndexedDB); none ship with the app.
+- The app **finds the bass line**: a track named "Bass", otherwise the lowest non-drum track. You can pick
+  any other track. Overlapping notes are trimmed to one at a time, since the synth is monophonic.
+- A **scrolling piano roll** with bar numbers, note names, the current and next note, and a whole-song
+  overview you can click to jump.
+- **Synth plays**: the line is sent to your Bass Station II over USB MIDI on its MIDI channel, so you hear
+  it with your own sound. Notes are scheduled ahead with exact timestamps, so timing does not depend on
+  the screen. Stopping always sends note-offs and All Notes Off.
+- **You play**: the app listens to the synth's keyboard and marks each note right, wrong or missed, with an
+  accuracy score. Optionally, any octave counts.
+- Tempo 40–150 %, transpose ±24 semitones, and looping a range of bars. Space plays and pauses.
+
 ### Sound Library
 
 - Save the current sound with a name, description, category and tags. Favourite, search, filter by
@@ -181,6 +197,9 @@ A challenge shows a takeaway once solved, links to its related lesson and record
 
 The app is open about its limits. Here they are in one place:
 
+- **Play Along needs a synth to be heard.** Without a connected Bass Station II (or another MIDI
+  instrument) the piano roll runs silently. It does not play drums or piano parts, only one line at a
+  time, and the "You play" grading only listens to notes coming in over MIDI.
 - **No audio.** By design for this version, the app does not synthesise sound. The graphs are
   mathematical _teaching models_ (labelled "Theoretical model" in the app), not simulations of the analog
   circuits.
@@ -289,6 +308,12 @@ Each phase is a commit on the `feat/academy-mvp` branch, merged into `main`.
 - The real dashboard.
 - End-to-end workflow tests, bundle splitting and documentation.
 
+**After Phase 6: hardware feedback and Play Along.**
+
+- Panel switches follow the synth over MIDI, unknown switch values can be taught, and the virtual
+  switches jump to the clicked position.
+- Play Along: MIDI file import, bass-line detection, piano roll, playback on the synth, and graded practice.
+
 ---
 
 ## Architecture
@@ -313,6 +338,7 @@ src/
     midi/           device manager, input/output handlers, parameter mapper, verification
     tasks/          exercise validation
     presets/        preset model, file format, comparison
+    songs/          MIDI file parser, note scheduler (SongPlayer), play-along grading
   stores/           Zustand: synth state, hardware UI, progress, presets, MIDI, preferences
   services/         IndexedDB, persistence wiring, preset repository, MIDI controller
 ```
@@ -329,17 +355,19 @@ More detail is in [`DEVELOPMENT.md`](DEVELOPMENT.md).
 
 ## Testing
 
-- **267 Vitest tests**:
+- **283 Vitest tests**:
   - registry integrity, such as unique IDs, valid ranges, no conflicting CC numbers, every manual callout
     covered and every routing option covered;
   - visual-engine calibration against the manual's numbers;
   - lesson and challenge content: every one is valid, solvable and not already solved;
   - the MIDI encode/decode/parse logic and the controller against a fake device;
   - preset validation and the import/export round-trip;
-  - component tests for the panel, lessons, challenges and library.
-- **7 Playwright tests in Chromium**: navigation with no runtime errors, IndexedDB persistence across
-  reloads, dragging a hardware knob, theme switching, lesson progress, presets, and the Hardware page with
-  no device.
+  - the MIDI file parser (tempo changes, running status, hanging notes), the note scheduler with a fake
+    clock, and play-along grading;
+  - component tests for the panel, lessons, challenges, library and Play Along.
+- **8 Playwright tests in Chromium**: navigation with no runtime errors, IndexedDB persistence across
+  reloads, dragging a hardware knob, theme switching, lesson progress, presets, the Hardware page with no
+  device, and importing and playing a MIDI file in Play Along.
 
 ---
 

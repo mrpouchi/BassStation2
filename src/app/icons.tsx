@@ -46,6 +46,13 @@ export const LibraryIcon = (p: SVGProps<SVGSVGElement>) => (
     <path d="M4 7.5h16M4 12h16M4 16.5h10" />
   </svg>
 );
+export const PlayAlongIcon = (p: SVGProps<SVGSVGElement>) => (
+  <svg {...base} {...p}>
+    <path d="M9 18V6l10-2v12" />
+    <circle cx="6.5" cy="18" r="2.5" />
+    <circle cx="16.5" cy="16" r="2.5" />
+  </svg>
+);
 export const BrandMark = (p: SVGProps<SVGSVGElement>) => (
   <svg viewBox="0 0 32 32" aria-hidden {...p}>
     <rect
