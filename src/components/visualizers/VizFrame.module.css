@@ -1,0 +1,115 @@
+.frame {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+.head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+.title {
+  font-size: var(--text-md);
+  font-weight: 600;
+}
+.svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  overflow: visible;
+}
+.caption {
+  font-size: var(--text-xs);
+  color: var(--text-faint);
+}
+.readout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+.readout strong {
+  color: var(--text);
+  font-weight: 500;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+/* SVG primitives — colours via tokens so both themes work. */
+.grid {
+  stroke: var(--border);
+  stroke-width: 1;
+}
+.axis {
+  stroke: var(--border-strong);
+  stroke-width: 1;
+}
+.tick {
+  fill: var(--text-faint);
+  font-size: 10px;
+  font-family: var(--font-sans);
+}
+.primary {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+.secondary {
+  fill: none;
+  stroke: var(--info);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+}
+.tertiary {
+  fill: none;
+  stroke: var(--success);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+}
+.ghost {
+  fill: none;
+  stroke: var(--text-faint);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+}
+.area {
+  fill: color-mix(in srgb, var(--accent) 12%, transparent);
+  stroke: none;
+}
+.barIn {
+  fill: color-mix(in srgb, var(--text-faint) 40%, transparent);
+}
+.barOut {
+  fill: var(--accent);
+}
+.barOut2 {
+  fill: var(--info);
+}
+.marker {
+  stroke: var(--text-muted);
+  stroke-width: 1;
+  stroke-dasharray: 2 3;
+}
+.legend {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+.swatch {
+  display: inline-block;
+  width: 10px;
+  height: 3px;
+  border-radius: 2px;
+  margin-right: 5px;
+  vertical-align: middle;
+}

@@ -124,6 +124,52 @@ export function toNormalized(def: ParameterDefinition, value: ParameterValue): n
   }
 }
 
+/** Inverse of toNormalized: a 0…1 position to a valid value. */
+export function fromNormalized(def: ParameterDefinition, n: number): ParameterValue {
+  const x = Math.min(1, Math.max(0, n));
+  switch (def.kind) {
+    case 'continuous':
+      return normalizeValue(def, def.min + x * (def.max - def.min)) ?? def.defaultValue;
+    case 'enum': {
+      const i = Math.round(x * (def.options.length - 1));
+      return def.options[i]?.value ?? def.defaultValue;
+    }
+    case 'toggle':
+      return x >= 0.5;
+  }
+}
+
+/**
+ * Moves a value by `steps` increments: one step for small ranges, ~1/127 of the
+ * range for large ones (e.g. 0–255), the next option for enums, flip for toggles.
+ * `wrap` cycles enums like the hardware select buttons do.
+ */
+export function stepValue(
+  def: ParameterDefinition,
+  value: ParameterValue,
+  steps: number,
+  wrap = false,
+): ParameterValue {
+  switch (def.kind) {
+    case 'continuous': {
+      const current = typeof value === 'number' ? value : def.defaultValue;
+      const increment = Math.max(def.step, (def.max - def.min) / 127 >= 1 ? 1 : def.step);
+      return normalizeValue(def, current + steps * increment) ?? current;
+    }
+    case 'enum': {
+      const n = def.options.length;
+      const i = Math.max(
+        0,
+        def.options.findIndex((o) => o.value === value),
+      );
+      const next = wrap ? (((i + steps) % n) + n) % n : Math.min(n - 1, Math.max(0, i + steps));
+      return def.options[next]?.value ?? def.defaultValue;
+    }
+    case 'toggle':
+      return steps === 0 ? value : !(value === true);
+  }
+}
+
 /**
  * Resolves which parameter(s) a physical control edits given the current
  * panel state. Returns [] for display-only controls and actions.
@@ -146,6 +192,14 @@ export function allControlTargets(target: ControlTarget | null): string[] {
   if ('param' in target) return [target.param];
   if ('params' in target) return [...target.params];
   return [target.via, ...Object.values(target.routes).flatMap(allControlTargets)];
+}
+
+/** Like allControlTargets, plus the Function-modifier target. */
+export function allControlTargetsWithFunction(control: ControlDefinition): string[] {
+  return [
+    ...allControlTargets(control.target),
+    ...(control.functionTarget ? allControlTargets(control.functionTarget) : []),
+  ];
 }
 
 export function describeAccess(def: ParameterDefinition): string {

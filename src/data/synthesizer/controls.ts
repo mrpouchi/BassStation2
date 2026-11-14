@@ -156,6 +156,7 @@ export const CONTROLS: readonly ControlDefinition[] = [
       label: 'Function + Coarse',
       description: 'Extended sub-oscillator coarse tuning.',
     },
+    functionTarget: param('sub.coarse'),
     source: { page: 9 },
   },
   {
@@ -167,6 +168,7 @@ export const CONTROLS: readonly ControlDefinition[] = [
     description: 'Fine-tunes the selected oscillator over ±100 cents.',
     target: perOsc('fine'),
     secondary: { label: 'Function + Fine', description: 'Extended sub-oscillator fine tuning.' },
+    functionTarget: param('sub.fine'),
     source: { page: 9 },
   },
   {

@@ -229,5 +229,7 @@ export interface ControlDefinition {
   readonly target: ControlTarget | null;
   /** Secondary function printed on/near the control (e.g. "Legato" on Arp On). */
   readonly secondary?: { readonly label: string; readonly description: string };
+  /** What the control edits while Function/Exit is held (e.g. extended sub-osc tuning). */
+  readonly functionTarget?: ControlTarget;
   readonly source: SourceReference;
 }

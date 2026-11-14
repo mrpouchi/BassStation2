@@ -2,36 +2,50 @@ import { useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/Button';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { SegmentedControl } from '@/components/ui/SegmentedControl';
+import { HardwarePanel } from '@/components/synthesizer/HardwarePanel';
+import { VisualizerGrid } from '@/components/visualizers/VisualizerGrid';
+import { useHardwareUiStore } from '@/stores/hardwareUiStore';
 import { useSynthStore } from '@/stores/synthStore';
-import { ControlsTab } from './ControlsTab';
-import { OnKeyTab } from './OnKeyTab';
+import { LearningView } from './LearningView';
 import { ParameterInspector } from './ParameterInspector';
-import { ParametersTab } from './ParametersTab';
+import { ReferenceView } from './ReferenceView';
 import styles from './SynthLabPage.module.css';
 
-type Tab = 'parameters' | 'controls' | 'on-key';
-const TABS: { value: Tab; label: string }[] = [
-  { value: 'parameters', label: 'Parameters' },
-  { value: 'controls', label: 'Panel controls' },
-  { value: 'on-key', label: 'On-Key functions' },
+type View = 'hardware' | 'learning' | 'reference';
+const VIEWS: { value: View; label: string }[] = [
+  { value: 'hardware', label: 'Hardware View' },
+  { value: 'learning', label: 'Learning View' },
+  { value: 'reference', label: 'Reference' },
 ];
 
-function isTab(v: string | null): v is Tab {
-  return TABS.some((t) => t.value === v);
-}
+// Old links (?view=controls / ?view=on-key) map onto the reference sub-tabs.
+const LEGACY: Record<string, string> = {
+  parameters: 'parameters',
+  controls: 'controls',
+  'on-key': 'on-key',
+};
 
 export function SynthLabPage() {
   const [params, setParams] = useSearchParams();
-  const raw = params.get('view');
-  const tab: Tab = isTab(raw) ? raw : 'parameters';
+  const raw = params.get('view') ?? 'hardware';
+  const legacyRef = LEGACY[raw];
+  const view: View = legacyRef
+    ? 'reference'
+    : VIEWS.some((v) => v.value === raw)
+      ? (raw as View)
+      : 'hardware';
+  if (legacyRef && params.get('ref') !== legacyRef) {
+    queueMicrotask(() => setParams({ view: 'reference', ref: legacyRef }, { replace: true }));
+  }
   const resetToInit = useSynthStore((s) => s.resetToInit);
+  const functionActive = useHardwareUiStore((s) => s.functionActive);
 
   return (
     <>
       <PageHeader
         eyebrow="Synth Lab"
-        title="Bass Station II reference"
-        description="Every documented parameter and control from the official v5.0 manual, sharing one live state. The interactive Hardware View and Learning View are built on this registry."
+        title="Bass Station II"
+        description="Turn any control and see what it does. All three views share one live parameter state. Visual only: the app makes no sound."
         actions={
           <Button variant="secondary" onClick={resetToInit}>
             Reset to Init Patch
@@ -40,17 +54,31 @@ export function SynthLabPage() {
       />
       <div className={styles.toolbar}>
         <SegmentedControl
-          label="Reference view"
-          options={TABS}
-          value={tab}
+          label="Synth Lab view"
+          options={VIEWS}
+          value={view}
           onChange={(v) => setParams({ view: v }, { replace: true })}
         />
+        {view === 'hardware' && (
+          <span className={styles.count}>
+            {functionActive
+              ? 'Function mode: press a key for its On-Key function, press it again for extended ones, use ◀ ▶ to change the value.'
+              : 'Drag knobs and faders vertically (Shift = fine). Double-click resets. Scroll or use the arrow keys to adjust.'}
+          </span>
+        )}
       </div>
+
+      {view === 'hardware' && (
+        <div style={{ marginBottom: 20 }}>
+          <HardwarePanel />
+        </div>
+      )}
+
       <div className={styles.layout}>
         <div>
-          {tab === 'parameters' && <ParametersTab />}
-          {tab === 'controls' && <ControlsTab />}
-          {tab === 'on-key' && <OnKeyTab />}
+          {view === 'hardware' && <VisualizerGrid />}
+          {view === 'learning' && <LearningView />}
+          {view === 'reference' && <ReferenceView />}
         </div>
         <div className={styles.side}>
           <ParameterInspector />

@@ -150,6 +150,17 @@ describe('control inventory', () => {
     }
   });
 
+  it('gives every function-modifier parameter a Function target on its control', () => {
+    for (const p of PARAMETERS) {
+      if (p.access.kind !== 'function-modifier') continue;
+      const controlId = p.access.controlId;
+      const control = CONTROLS.find((c) => c.id === controlId);
+      expect(control?.functionTarget && allControlTargets(control.functionTarget), p.id).toContain(
+        p.id,
+      );
+    }
+  });
+
   it('makes every panel parameter reachable from a physical control', () => {
     const reachable = new Set(CONTROLS.flatMap((c) => allControlTargets(c.target)));
     const panel = PARAMETERS.filter((p) => p.access.kind === 'panel');

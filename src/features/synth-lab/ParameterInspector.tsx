@@ -1,10 +1,17 @@
 import { Badge, type BadgeTone } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { ParameterEditor } from '@/components/controls/ParameterEditor';
+import { CURRICULUM } from '@/data/lessons/curriculum';
 import { findConcept } from '@/data/synthesizer/concepts';
+import { CONTROLS } from '@/data/synthesizer/controls';
 import { getSection } from '@/data/synthesizer/sections';
 import { describeMidiMapping, VERIFICATION_LABELS } from '@/engine/midi/describe';
-import { describeAccess, findParameter, formatValue } from '@/engine/parameters/registry';
+import {
+  allControlTargetsWithFunction,
+  describeAccess,
+  findParameter,
+  formatValue,
+} from '@/engine/parameters/registry';
 import type { MidiVerification } from '@/engine/parameters/types';
 import { useSynthStore } from '@/stores/synthStore';
 import styles from './ParameterInspector.module.css';
@@ -42,6 +49,14 @@ export function ParameterInspector() {
   }
 
   const { education: edu, midi } = def;
+  const panelControls = CONTROLS.filter(
+    (c) =>
+      allControlTargetsWithFunction(c).includes(def.id) &&
+      !(c.target && 'via' in c.target && c.target.via === def.id),
+  );
+  const lessons = CURRICULUM.flatMap((ch) =>
+    ch.lessons.filter((l) => l.parameters.includes(def.id)).map((l) => ({ ...l, chapter: ch })),
+  );
 
   return (
     <aside className={styles.inspector} aria-label="Parameter inspector">
@@ -123,6 +138,33 @@ export function ParameterInspector() {
                 ) : null;
               })}
             </div>
+          </section>
+        )}
+
+        {(panelControls.length > 0 || lessons.length > 0) && (
+          <section className={styles.block}>
+            <h3 className={styles.blockTitle}>On the panel &amp; in lessons</h3>
+            {panelControls.length > 0 && (
+              <p className={styles.note}>
+                Panel:{' '}
+                {panelControls
+                  .map(
+                    (c) =>
+                      `${c.label}${c.callout ? ` (callout ${c.callout})` : ''}${c.functionTarget && allControlTargetsWithFunction({ ...c, target: null }).includes(def.id) ? ' with Function held' : ''}`,
+                  )
+                  .join(', ')}
+              </p>
+            )}
+            {lessons.length > 0 && (
+              <ul style={{ margin: 0, paddingLeft: 18 }} className={styles.note}>
+                {lessons.map((l) => (
+                  <li key={`${l.chapter.id}/${l.id}`}>
+                    Chapter {l.chapter.number} · {l.title}
+                    {l.status === 'planned' && ' (in writing)'}
+                  </li>
+                ))}
+              </ul>
+            )}
           </section>
         )}
 

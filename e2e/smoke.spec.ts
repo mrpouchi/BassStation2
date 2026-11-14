@@ -11,7 +11,7 @@ test('navigates all sections without runtime errors', async ({ page }) => {
   ).toBeVisible();
   for (const [link, heading] of [
     ['Learn', 'Curriculum'],
-    ['Synth Lab', 'Bass Station II reference'],
+    ['Synth Lab', 'Bass Station II'],
     ['Challenges', 'Practice by doing'],
     ['Sound Library', 'Your presets'],
   ]) {
@@ -22,7 +22,7 @@ test('navigates all sections without runtime errors', async ({ page }) => {
 });
 
 test('persists parameter edits across reloads (IndexedDB)', async ({ page }) => {
-  await page.goto('/synth-lab');
+  await page.goto('/synth-lab?view=reference');
   await page.getByRole('button', { name: /^Resonance/ }).click();
   const slider = page
     .getByRole('complementary', { name: 'Parameter inspector' })
@@ -42,4 +42,22 @@ test('theme switch applies dark mode', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('radio', { name: 'Dark' }).click();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+});
+
+test('hardware knob drag updates the inspector and visualisers', async ({ page }) => {
+  await page.goto('/synth-lab');
+  const knob = page.getByRole('slider', { name: 'Frequency — Frequency' });
+  const box = await knob.boundingBox();
+  if (!box) throw new Error('knob not visible');
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2 + 130, { steps: 8 });
+  await page.mouse.up();
+  const value = Number(await knob.getAttribute('aria-valuenow'));
+  expect(value).toBeLessThan(200);
+  await expect(
+    page
+      .getByRole('complementary', { name: 'Parameter inspector' })
+      .getByRole('heading', { name: 'Frequency' }),
+  ).toBeVisible();
 });

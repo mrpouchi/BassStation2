@@ -1,0 +1,434 @@
+/* The virtual panel is always dark, like the instrument, in both app themes. */
+.panel {
+  --u: calc(100cqw / 730);
+  --hw-bg: #1d1e21;
+  --hw-bg-2: #26272b;
+  --hw-line: #3a3c42;
+  --hw-text: #dfe3e8;
+  --hw-text-dim: #9aa1aa;
+  --hw-cyan: #4fb8e6;
+  --hw-cyan-text: #082331;
+  --hw-led-on: #ff4433;
+  --hw-led-off: #4b1a17;
+  --hw-focus: #ffffff;
+  position: relative;
+  width: 100%;
+  aspect-ratio: 730 / 435;
+  container-type: inline-size;
+  background: linear-gradient(180deg, rgb(255 255 255 / 0.03), transparent 40%), var(--hw-bg);
+  border-radius: calc(var(--u) * 10);
+  box-shadow:
+    inset 0 0 0 1px rgb(255 255 255 / 0.05),
+    var(--shadow-2);
+  color: var(--hw-text);
+  font-size: max(7.5px, calc(var(--u) * 5.3));
+  line-height: 1.15;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+  overflow: hidden;
+}
+.wrap {
+  container-type: inline-size;
+  width: 100%;
+}
+.place {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(var(--u) * 2.5);
+}
+.bar {
+  position: absolute;
+  height: calc(var(--u) * 7.5);
+  transform: translateY(-50%);
+  background: var(--hw-cyan);
+  color: var(--hw-cyan-text);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-size: max(7px, calc(var(--u) * 5.2));
+  display: grid;
+  place-items: center;
+  border-radius: 1px;
+}
+.divider {
+  position: absolute;
+  height: 1px;
+  background: var(--hw-line);
+}
+.label {
+  color: var(--hw-text);
+  white-space: nowrap;
+  pointer-events: none;
+}
+.dim {
+  color: var(--hw-text-dim);
+}
+.brand {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  text-align: left;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-size: max(8px, calc(var(--u) * 7.5));
+  color: var(--hw-text);
+  line-height: 1.1;
+}
+.brand small {
+  display: block;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  color: var(--hw-text-dim);
+  font-size: max(7px, calc(var(--u) * 5.5));
+}
+
+/* Interactive target ring */
+.interactive {
+  cursor: pointer;
+  border-radius: 50%;
+  outline: none;
+}
+.interactive:focus-visible,
+.selected {
+  box-shadow: 0 0 0 calc(var(--u) * 1.6) var(--hw-cyan);
+}
+
+/* Knob */
+.knob {
+  display: block;
+  cursor: ns-resize;
+  border-radius: 50%;
+  touch-action: none;
+}
+.knob svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.knobSm {
+  width: calc(var(--u) * 27);
+  height: calc(var(--u) * 27);
+}
+.knobLg {
+  width: calc(var(--u) * 54);
+  height: calc(var(--u) * 54);
+}
+.knobXs {
+  width: calc(var(--u) * 24);
+  height: calc(var(--u) * 24);
+}
+
+/* Fader */
+.fader {
+  position: relative;
+  width: calc(var(--u) * 22);
+  height: calc(var(--u) * 58);
+  cursor: ns-resize;
+  touch-action: none;
+  border-radius: 3px;
+}
+.faderTicks {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    180deg,
+    var(--hw-text-dim) 0 1px,
+    transparent 1px calc(var(--u) * 5.6)
+  );
+  opacity: 0.55;
+  mask: linear-gradient(90deg, #000 30%, transparent 30% 70%, #000 70%);
+}
+.faderSlot {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: calc(var(--u) * 3);
+  transform: translateX(-50%);
+  background: #0b0b0d;
+  border-radius: 2px;
+}
+.faderCap {
+  position: absolute;
+  left: 50%;
+  width: calc(var(--u) * 15);
+  height: calc(var(--u) * 8);
+  transform: translate(-50%, 50%);
+  background: linear-gradient(180deg, #5b5f66, #2b2d31 45%, #6b7078 50%, #2f3136);
+  border-radius: 2px;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.6);
+}
+
+/* Switch */
+.switchWrap {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--u) * 3);
+}
+.switchVertical {
+  flex-direction: row;
+}
+.switchSlot {
+  position: relative;
+  background: #0c0c0e;
+  border-radius: calc(var(--u) * 2.5);
+  border: 1px solid #000;
+  cursor: pointer;
+  padding: 0;
+}
+.slotV {
+  width: calc(var(--u) * 7);
+}
+.slotH {
+  height: calc(var(--u) * 7);
+}
+.switchThumb {
+  position: absolute;
+  width: calc(var(--u) * 6);
+  height: calc(var(--u) * 6);
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #f6f7f8, #a7acb3 70%);
+  transition: all var(--duration-fast) var(--ease);
+}
+.switchOptions {
+  display: flex;
+  gap: calc(var(--u) * 1.5);
+}
+.optionsV {
+  flex-direction: column;
+}
+.option {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--u) * 2);
+  border: 0;
+  background: none;
+  padding: 0;
+  color: var(--hw-text-dim);
+  cursor: pointer;
+  font-size: inherit;
+  white-space: nowrap;
+  line-height: 1.1;
+}
+.optionActive {
+  color: var(--hw-text);
+}
+.led {
+  display: inline-block;
+  width: calc(var(--u) * 4);
+  height: calc(var(--u) * 4);
+  border-radius: 50%;
+  background: var(--hw-led-off);
+  flex: none;
+}
+.ledOn {
+  background: var(--hw-led-on);
+  box-shadow: 0 0 calc(var(--u) * 4) var(--hw-led-on);
+}
+.ledBlink {
+  animation: blink var(--blink, 1s) steps(1, end) infinite;
+}
+@keyframes blink {
+  50% {
+    background: var(--hw-led-off);
+    box-shadow: none;
+  }
+}
+
+/* Buttons */
+.hwButton {
+  min-width: calc(var(--u) * 26);
+  height: calc(var(--u) * 11);
+  padding: 0 calc(var(--u) * 4);
+  border-radius: calc(var(--u) * 2);
+  border: 1px solid #000;
+  background: linear-gradient(180deg, #3a3c41, #232428);
+  color: var(--hw-text);
+  font-size: inherit;
+  cursor: pointer;
+  box-shadow: 0 1px 0 rgb(255 255 255 / 0.06) inset;
+}
+.hwButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+.hwButton:active:not(:disabled) {
+  transform: translateY(1px);
+}
+.hwButtonActive {
+  background: linear-gradient(180deg, #2c6f8f, #1b4a61);
+  border-color: var(--hw-cyan);
+}
+.arrowButton {
+  width: calc(var(--u) * 20);
+  height: calc(var(--u) * 15);
+  min-width: 0;
+  background: linear-gradient(180deg, #43a9d6, #2b86b0);
+  color: #fff;
+}
+.wideButton {
+  width: calc(var(--u) * 26);
+  height: calc(var(--u) * 7);
+  min-width: 0;
+}
+.lfoButton {
+  width: calc(var(--u) * 9);
+  height: calc(var(--u) * 30);
+  min-width: 0;
+  padding: 0;
+}
+.secondaryTag {
+  background: #c9d3dc;
+  color: #1a1d22;
+  padding: 0 calc(var(--u) * 2);
+  border-radius: 1px;
+  font-size: max(7px, calc(var(--u) * 5));
+}
+
+/* LED display */
+.display {
+  width: calc(var(--u) * 68);
+  height: calc(var(--u) * 26);
+  background: #0a0a0b;
+  border-radius: calc(var(--u) * 2);
+  border: 1px solid #000;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 calc(var(--u) * 5);
+}
+.digits {
+  font-family: 'DSEG7 Classic', ui-monospace, 'SF Mono', Menlo, monospace;
+  font-weight: 700;
+  font-size: calc(var(--u) * 17);
+  letter-spacing: 0.06em;
+  color: var(--hw-led-on);
+  text-shadow: 0 0 calc(var(--u) * 5) rgb(255 68 51 / 0.55);
+  font-variant-numeric: tabular-nums;
+}
+.orgArrows {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--u) * 2);
+  font-size: calc(var(--u) * 6);
+  color: #3a3a3d;
+}
+.orgOn {
+  color: #f0f0f0;
+}
+
+/* Wheels */
+.wheel {
+  position: relative;
+  width: calc(var(--u) * 22);
+  height: calc(var(--u) * 100);
+  border-radius: calc(var(--u) * 6);
+  background: #0b0b0d;
+  border: 1px solid #000;
+  overflow: hidden;
+  cursor: ns-resize;
+  touch-action: none;
+}
+.wheelSurface {
+  position: absolute;
+  inset: calc(var(--u) * 6) calc(var(--u) * 3);
+  border-radius: calc(var(--u) * 4);
+  background: repeating-linear-gradient(
+      180deg,
+      #2a2b2f 0 calc(var(--u) * 3),
+      #17181b calc(var(--u) * 3) calc(var(--u) * 6)
+    ),
+    #202124;
+  box-shadow:
+    inset 0 calc(var(--u) * 8) calc(var(--u) * 8) -4px #000,
+    inset 0 calc(var(--u) * -8) calc(var(--u) * 8) -4px #000;
+}
+.wheelGlow {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: calc(var(--u) * 3);
+  background: #2f8fe0;
+  box-shadow: 0 0 calc(var(--u) * 6) #2f8fe0;
+}
+
+/* Keyboard */
+.keyboard {
+  position: absolute;
+}
+.key {
+  position: absolute;
+  top: 0;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  touch-action: none;
+}
+.white {
+  height: 100%;
+  background: linear-gradient(180deg, #f2f2f0 0%, #ffffff 85%, #e9e9e6 100%);
+  border-right: 1px solid #b9b9b5;
+  border-radius: 0 0 calc(var(--u) * 2.5) calc(var(--u) * 2.5);
+}
+.black {
+  height: 62%;
+  background: linear-gradient(180deg, #2b2c2f, #0d0d0f 90%);
+  border-radius: 0 0 calc(var(--u) * 2) calc(var(--u) * 2);
+  z-index: 1;
+  box-shadow: 0 2px 3px rgb(0 0 0 / 0.5);
+}
+.white.keyDown {
+  background: linear-gradient(180deg, #d6e8f2, #ecf5fa);
+}
+.black.keyDown {
+  background: linear-gradient(180deg, #1b3a4b, #0f2531);
+}
+.keyFunction.white {
+  background: linear-gradient(180deg, #e6f3fa, #ffffff 80%);
+}
+.keyOnKeySelected.white,
+.keyOnKeySelected.black {
+  box-shadow: inset 0 0 0 calc(var(--u) * 1.6) var(--hw-cyan);
+}
+
+/* On-Key label strip */
+.strip {
+  position: absolute;
+}
+.stripLabel {
+  position: absolute;
+  transform: translateX(-50%);
+  text-align: center;
+  font-size: max(5.5px, calc(var(--u) * 3.9));
+  color: var(--hw-text-dim);
+  line-height: 1.05;
+  width: calc(var(--u) * 36);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.stripActive .stripLabel {
+  color: var(--hw-text);
+}
+.stripLabelSelected {
+  color: var(--hw-cyan) !important;
+  font-weight: 700;
+}
+.groupBar {
+  position: absolute;
+  height: calc(var(--u) * 5);
+  background: var(--hw-cyan);
+  color: var(--hw-cyan-text);
+  font-size: max(6px, calc(var(--u) * 4.2));
+  font-weight: 700;
+  padding-left: calc(var(--u) * 2);
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  overflow: hidden;
+}
