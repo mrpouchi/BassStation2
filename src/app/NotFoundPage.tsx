@@ -1,17 +1,18 @@
 import { ButtonLink } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { t } from '@/i18n/t';
 
 export function NotFoundPage() {
   return (
     <EmptyState
-      title="Page not found"
+      title={t('Page not found')}
       actions={
         <ButtonLink to="/" variant="primary">
-          Back to dashboard
+          {t('Back to dashboard')}
         </ButtonLink>
       }
     >
-      This address does not match any section of the Academy.
+      {t('This address does not match any section of the Academy.')}
     </EmptyState>
   );
 }

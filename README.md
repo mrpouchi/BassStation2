@@ -38,7 +38,7 @@ npm run dev            # http://localhost:5173
 | `npm run dev`                                           | Development server                                                                            |
 | `npm run build`                                         | Type-check and production build to `dist/`                                                    |
 | `npm run preview`                                       | Serve the production build                                                                    |
-| `npm test`                                              | 267 unit, data and component tests (Vitest)                                                   |
+| `npm test`                                              | 287 unit, data and component tests (Vitest)                                                   |
 | `npm run test:e2e`                                      | 7 end-to-end tests in Chromium (Playwright). Run `npx playwright install chromium` once first |
 | `npm run lint` / `npm run typecheck` / `npm run format` | ESLint, TypeScript, Prettier                                                                  |
 
@@ -169,6 +169,10 @@ A challenge shows a takeaway once solved, links to its related lesson and record
 
 ### Everywhere
 
+- **English and French.** The whole app is translated: interface, 44 lessons, 18 challenges, the 114
+  parameter explanations, controls, glossary and examples. It starts in your browser’s language and
+  remembers your choice (sidebar: Language · Langue). Labels printed on the hardware (Cutoff, Osc Select,
+  Env Select…) stay in English in both languages, so they match the real panel.
 - Light, dark and automatic (system) theme. Responsive down to phone width.
 - **Automatic local saving** in IndexedDB: panel state, theme, lesson and challenge progress, presets and
   MIDI settings. Data is validated when loaded, and the database schema has versioned migrations.
@@ -209,7 +213,8 @@ The app is open about its limits. Here they are in one place:
   at the moment you move the switch.
 - **Tested on desktop Chrome.** Other browsers work for everything except Web MIDI (Safari has no Web MIDI
   support). The layout works on phones, but the panel is small there.
-- **English only.** There is no translation layer yet.
+- **Two languages only** (English and French). Some technical notes in the MIDI reference (codec
+  descriptions, manual range notes) stay in English.
 
 ---
 
@@ -329,13 +334,15 @@ More detail is in [`DEVELOPMENT.md`](DEVELOPMENT.md).
 
 ## Testing
 
-- **267 Vitest tests**:
+- **287 Vitest tests**:
   - registry integrity, such as unique IDs, valid ranges, no conflicting CC numbers, every manual callout
     covered and every routing option covered;
   - visual-engine calibration against the manual's numbers;
   - lesson and challenge content: every one is valid, solvable and not already solved;
   - the MIDI encode/decode/parse logic and the controller against a fake device;
   - preset validation and the import/export round-trip;
+  - translations: every French string matches the English structure, nothing is missing, every `t()` key
+    in the code has a French entry with the same placeholders, and switching language at runtime;
   - component tests for the panel, lessons, challenges and library.
 - **7 Playwright tests in Chromium**: navigation with no runtime errors, IndexedDB persistence across
   reloads, dragging a hardware knob, theme switching, lesson progress, presets, and the Hardware page with
@@ -362,5 +369,5 @@ More detail is in [`DEVELOPMENT.md`](DEVELOPMENT.md).
    encodings, then promote the verified mappings in the registry.
 2. Research the patch SysEx format from real dumps, then add hardware patch import and export.
 3. Add an optional audio preview using Web Audio, clearly labelled as an approximation.
-4. Translations, starting with French.
-5. Lessons for AFX mode, micro-tuning and paraphonic playing.
+4. Lessons for AFX mode, micro-tuning and paraphonic playing.
+5. More languages (the translation layer is ready).

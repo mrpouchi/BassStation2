@@ -9,6 +9,7 @@ import { OSC_IDS, toMixInput } from './oscInput';
 import { linear, linePath } from './svg';
 import { VizFrame } from './VizFrame';
 import s from './VizFrame.module.css';
+import { t } from '@/i18n/t';
 
 type Layer = 'mix' | 'sources';
 const W = 480;
@@ -31,22 +32,22 @@ export function WaveformVisualizer() {
 
   return (
     <VizFrame
-      title="Waveform"
+      title={t('Waveform')}
       controls={
         <SegmentedControl
-          label="Waveform layers"
+          label={t('Waveform layers')}
           value={layer}
           onChange={setLayer}
           options={[
-            { value: 'mix', label: 'Mixer output' },
-            { value: 'sources', label: 'Sources' },
+            { value: 'mix', label: t('Mixer output') },
+            { value: 'sources', label: t('Sources') },
           ]}
         />
       }
       readout={
         <>
           <span>
-            Note <strong>{noteName(note)}</strong>
+            {t('Note')} <strong>{noteName(note)}</strong>
           </span>
           <span>
             Osc 1{' '}
@@ -56,25 +57,27 @@ export function WaveformVisualizer() {
           </span>
           {input.sync && (
             <span>
-              <strong>Sync on</strong>: Osc 2 restarts with every Osc 1 cycle
+              <strong>{t('Sync on')}</strong>: {t('Osc 2 restarts with every Osc 1 cycle')}
             </span>
           )}
         </>
       }
-      caption="Two cycles of Oscillator 1. The mix is scaled to fit, so its shape stays readable. Real analog waveforms have rounded edges and drift. Play a key on the panel to change the note."
+      caption={t(
+        'Two cycles of Oscillator 1. The mix is scaled to fit, so its shape stays readable. Real analog waveforms have rounded edges and drift. Play a key on the panel to change the note.',
+      )}
     >
       <svg
         viewBox={`0 0 ${W} ${H}`}
         className={s.svg}
         role="img"
-        aria-label="Oscillator waveform plot"
+        aria-label={t('Oscillator waveform plot')}
       >
         <line x1={PAD} x2={W - PAD} y1={mapY(0)} y2={mapY(0)} className={s.axis} />
         <line x1={mapX(1)} x2={mapX(1)} y1={PAD} y2={H - PAD} className={s.grid} />
         {layer === 'mix' ? (
           silent ? (
             <text x={W / 2} y={H / 2 - 12} textAnchor="middle" className={s.tick}>
-              All mixer levels are at zero, so there is no signal.
+              {t('All mixer levels are at zero, so there is no signal.')}
             </text>
           ) : (
             <path d={linePath(data.x, data.mix, mapX, mapY)} className={s.primary} />

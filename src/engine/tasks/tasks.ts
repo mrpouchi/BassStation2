@@ -1,5 +1,6 @@
 import { defaultValues, findParameter, formatValue } from '@/engine/parameters/registry';
 import type { ParameterValue } from '@/engine/parameters/types';
+import { t, tn } from '@/i18n/t';
 
 /**
  * Exercise/challenge task model shared by Learn and Challenges.
@@ -93,8 +94,11 @@ export function evaluateTask(
         results,
         message:
           missing === 0
-            ? 'Every target is met.'
-            : `${results.length - missing} of ${results.length} targets met. Follow the hints below.`,
+            ? t('Every target is met.')
+            : t('{met} of {total} targets met. Follow the hints below.', {
+                met: results.length - missing,
+                total: results.length,
+              }),
       };
     }
     case 'choice': {
@@ -102,7 +106,7 @@ export function evaluateTask(
       return {
         passed: option?.correct === true,
         results: [],
-        message: option ? option.feedback : 'Choose an answer first.',
+        message: option ? option.feedback : t('Choose an answer first.'),
       };
     }
     case 'select': {
@@ -113,10 +117,13 @@ export function evaluateTask(
         passed,
         results: [],
         message: !def
-          ? 'Click a control on the panel first. The selected control is shown in the inspector.'
+          ? t('Click a control on the panel first. The selected control is shown in the inspector.')
           : passed
-            ? `Correct: ${def.name}. ${task.feedback}`
-            : `${def.name} is not the one: ${def.description} Try another control.`,
+            ? t('Correct: {name}. {feedback}', { name: def.name, feedback: task.feedback })
+            : t('{name} is not the one: {description} Try another control.', {
+                name: def.name,
+                description: def.description,
+              }),
       };
     }
     case 'changed': {
@@ -126,8 +133,13 @@ export function evaluateTask(
         results: [],
         message:
           n >= task.minChanged
-            ? `You changed ${n} sound parameters from the Init Patch.`
-            : `You have changed ${n} sound parameter${n === 1 ? '' : 's'} so far. Change at least ${task.minChanged}.`,
+            ? t('You changed {n} sound parameters from the Init Patch.', { n })
+            : tn(
+                n,
+                'You have changed {count} sound parameter so far. Change at least {min}.',
+                'You have changed {count} sound parameters so far. Change at least {min}.',
+                { min: task.minChanged },
+              ),
       };
     }
   }
@@ -148,8 +160,8 @@ export function describeCondition(c: Condition): string {
     case 'lte':
       return `${name} ≤ ${fmt(c.value)}`;
     case 'between':
-      return `${name} between ${fmt(c.min)} and ${fmt(c.max)}`;
+      return t('{name} between {min} and {max}', { name, min: fmt(c.min), max: fmt(c.max) });
     case 'outside':
-      return `${name} below ${fmt(c.min)} or above ${fmt(c.max)}`;
+      return t('{name} below {min} or above {max}', { name, min: fmt(c.min), max: fmt(c.max) });
   }
 }

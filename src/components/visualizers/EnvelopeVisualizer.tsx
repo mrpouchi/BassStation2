@@ -5,6 +5,7 @@ import { bool, num, str, useSynthValues } from '@/hooks/useSynthValues';
 import { linear, linePath } from './svg';
 import { VizFrame } from './VizFrame';
 import s from './VizFrame.module.css';
+import { t } from '@/i18n/t';
 
 const IDS = [
   'ampEnv.attack',
@@ -68,7 +69,7 @@ export function EnvelopeVisualizer() {
 
   return (
     <VizFrame
-      title="Envelopes"
+      title={t('Envelopes')}
       readout={
         <>
           <span>
@@ -85,13 +86,15 @@ export function EnvelopeVisualizer() {
           </span>
         </>
       }
-      caption="Level over time for one held note (dashed line = key released, timed to show the whole shape). The mid-travel times (attack ≈ 250 ms, decay ≈ 150 ms, release ≈ 360 ms) come from the manual. Other points are interpolated. The Env Select switch decides which curve is highlighted."
+      caption={t(
+        'Level over time for one held note (dashed line = key released, timed to show the whole shape). The mid-travel times (attack ≈ 250 ms, decay ≈ 150 ms, release ≈ 360 ms) come from the manual. Other points are interpolated. The Env Select switch decides which curve is highlighted.',
+      )}
     >
-      <svg viewBox={`0 0 ${W} ${H}`} className={s.svg} role="img" aria-label="Envelope curves">
+      <svg viewBox={`0 0 ${W} ${H}`} className={s.svg} role="img" aria-label={t('Envelope curves')}>
         <line x1={PAD} x2={W - PAD} y1={mapY(0)} y2={mapY(0)} className={s.axis} />
         <line x1={mapX(GATE)} x2={mapX(GATE)} y1={PAD} y2={H - PAD_B} className={s.marker} />
         <text x={mapX(GATE) + 4} y={PAD + 10} className={s.tick}>
-          key up
+          {t('key up')}
         </text>
         <text x={W - PAD} y={H - 4} textAnchor="end" className={s.tick}>
           {fmt(total)}

@@ -84,10 +84,27 @@ can hide them and reveal hints after each check.
   - Users' own results (`useMidiStore.verification`) are displayed separately as "(your device)" through
     `effectiveVerification()`.
 
-### 5. Persistence (`src/services`)
+### 5. Languages (`src/i18n`)
+
+- `useLocaleStore` holds `'en' | 'fr'`: detected from `navigator.languages` at startup and saved in
+  `preferences/locale`. `setLocale` is async and serialized, so the latest request wins.
+- Interface strings: `t('English text', { vars })` and `tn(count, one, other)`. The English text is the
+  key and `fr/ui.ts` maps it to French. A missing key falls back to English.
+- Content (lessons, challenges, parameters, controls, glossary, curriculum, presets) is translated with
+  text overlays. `content.ts` lists each content set and its text keys. On a language change, English
+  strings are restored and the French overlay (`fr/content.ts`, a lazily loaded chunk) is written into the
+  data objects in place. Ids, values and structure are never touched. The app shell remounts on change,
+  so everything renders again.
+- Labels printed on the hardware stay English.
+- Tests (`i18n.test.ts`) fail if a French overlay has a stray or missing string, if a literal `t()` key in
+  the source has no French entry, or if placeholders differ.
+- When you add or change English content, add the French text to the matching `fr/*.ts` file in the same
+  shape. The tests will tell you what is missing.
+
+### 6. Persistence (`src/services`)
 
 - IndexedDB `bass-station-academy` holds these object stores:
-  - `preferences`: theme, MIDI settings;
+  - `preferences`: theme, language, MIDI settings;
   - `session`: panel values as `{ format: 1, values }`;
   - `progress`: `v1`;
   - `presets`: one record per preset.
@@ -123,7 +140,7 @@ All six phases are implemented. The numbers:
 | Lessons                  | 44 across 8 chapters                         |
 | Challenges               | 18 across 6 types                            |
 | Example presets          | 6                                            |
-| Tests                    | 267 Vitest + 7 Playwright                    |
+| Tests                    | 287 Vitest + 7 Playwright                    |
 
 ## Known limitations
 
@@ -144,6 +161,6 @@ The full list is in the README under "What the app cannot do (yet)". Technical n
    `MidiParameterMapper`.
 2. Patch SysEx research from real dumps, then hardware preset import and export.
 3. An optional Web Audio preview, labelled as an approximation.
-4. i18n (French first).
-5. Lessons for AFX mode, micro-tuning and paraphony.
-6. A service worker for offline installs.
+4. Lessons for AFX mode, micro-tuning and paraphony.
+5. A service worker for offline installs.
+6. More languages.

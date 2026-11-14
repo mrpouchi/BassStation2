@@ -3,6 +3,7 @@ import { formatValue } from '@/engine/parameters/registry';
 import styles from './Hardware.module.css';
 import { at } from './layout';
 import { useBoundControl } from './useBoundControl';
+import { t } from '@/i18n/t';
 
 interface HwSwitchProps {
   controlId: string;
@@ -71,7 +72,10 @@ export function HwSwitch({
         .filter(Boolean)
         .join(' ')}
       style={vertical ? { height: slotLen, borderRadius: 4 } : { width: slotLen, borderRadius: 4 }}
-      aria-label={`${control.label}: ${current}. Activate to switch.`}
+      aria-label={t('{label}: {value}. Activate to switch.', {
+        label: control.label,
+        value: current,
+      })}
       title={`${def.name}: ${current}`}
       onPointerDown={(e) => {
         if (e.button !== 0) return;

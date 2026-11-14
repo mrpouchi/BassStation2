@@ -11,6 +11,7 @@ import { LearningView } from './LearningView';
 import { ParameterInspector } from './ParameterInspector';
 import { ReferenceView } from './ReferenceView';
 import styles from './SynthLabPage.module.css';
+import { t } from '@/i18n/t';
 
 type View = 'hardware' | 'learning' | 'reference';
 const VIEWS: { value: View; label: string }[] = [
@@ -44,27 +45,33 @@ export function SynthLabPage() {
   return (
     <>
       <PageHeader
-        eyebrow="Synth Lab"
+        eyebrow={t('Synth Lab')}
         title="Bass Station II"
-        description="Turn any control and see what it does. All three views share one live parameter state. Visual only: the app makes no sound."
+        description={t(
+          'Turn any control and see what it does. All three views share one live parameter state. Visual only: the app makes no sound.',
+        )}
         actions={
           <Button variant="secondary" onClick={resetToInit}>
-            Reset to Init Patch
+            {t('Reset to Init Patch')}
           </Button>
         }
       />
       <div className={styles.toolbar}>
         <SegmentedControl
-          label="Synth Lab view"
-          options={VIEWS}
+          label={t('Synth Lab view')}
+          options={VIEWS.map((v) => ({ ...v, label: t(v.label) }))}
           value={view}
           onChange={(v) => setParams({ view: v }, { replace: true })}
         />
         {view === 'hardware' && (
           <span className={styles.count}>
             {functionActive
-              ? 'Function mode: press a key for its On-Key function, press it again for extended ones, use ◀ ▶ to change the value.'
-              : 'Drag knobs and faders vertically (Shift = fine). Double-click resets. Scroll or use the arrow keys to adjust.'}
+              ? t(
+                  'Function mode: press a key for its On-Key function, press it again for extended ones, use ◀ ▶ to change the value.',
+                )
+              : t(
+                  'Drag knobs and faders vertically (Shift = fine). Double-click resets. Scroll or use the arrow keys to adjust.',
+                )}
           </span>
         )}
       </div>

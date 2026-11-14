@@ -3,6 +3,7 @@ import { SegmentedControl } from '@/components/ui/SegmentedControl';
 import { ControlsTab } from './ControlsTab';
 import { OnKeyTab } from './OnKeyTab';
 import { ParametersTab } from './ParametersTab';
+import { t } from '@/i18n/t';
 
 type Ref = 'parameters' | 'controls' | 'on-key';
 const REFS: { value: Ref; label: string }[] = [
@@ -19,8 +20,8 @@ export function ReferenceView() {
     <>
       <div style={{ marginBottom: 16 }}>
         <SegmentedControl
-          label="Reference section"
-          options={REFS}
+          label={t('Reference section')}
+          options={REFS.map((r) => ({ ...r, label: t(r.label) }))}
           value={ref}
           onChange={(v) => setParams({ view: 'reference', ref: v }, { replace: true })}
         />

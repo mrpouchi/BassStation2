@@ -1,3 +1,4 @@
+import { isLocale, useLocaleStore } from '@/i18n/locale';
 import { isThemePreference, usePreferencesStore } from '@/stores/preferencesStore';
 import { usePersistenceStore } from '@/stores/persistenceStore';
 import { parseMidiSettings, useMidiStore, type StoredMidiSettings } from '@/stores/midiStore';
@@ -25,7 +26,8 @@ function isStoredPanelState(v: unknown): v is StoredPanelState {
 export async function initPersistence(): Promise<void> {
   const status = usePersistenceStore.getState();
   try {
-    const [theme, panel, progress, midi] = await Promise.all([
+    const [locale, theme, panel, progress, midi] = await Promise.all([
+      readKey('preferences', 'locale'),
       readKey('preferences', 'theme'),
       readKey('session', 'panel'),
       readKey('progress', 'v1'),
@@ -45,6 +47,7 @@ export async function initPersistence(): Promise<void> {
     const parsedProgress = parseProgress(progress);
     if (parsedProgress) useProgressStore.getState().load(parsedProgress);
     if (isThemePreference(theme)) usePreferencesStore.getState().setTheme(theme);
+    if (isLocale(locale)) useLocaleStore.getState().setLocale(locale);
     if (isStoredPanelState(panel)) {
       const rejected = useSynthStore.getState().replaceValues(panel.values, 'system');
       if (rejected.length > 0) console.warn('Ignored invalid stored parameters:', rejected);
@@ -55,6 +58,11 @@ export async function initPersistence(): Promise<void> {
     status.setStatus('unavailable', error instanceof Error ? error.message : String(error));
     return;
   }
+
+  useLocaleStore.subscribe((s, prev) => {
+    if (s.locale !== prev.locale)
+      void writeKey('preferences', 'locale', s.locale).catch(reportError);
+  });
 
   usePreferencesStore.subscribe((s, prev) => {
     if (s.theme !== prev.theme) void writeKey('preferences', 'theme', s.theme).catch(reportError);

@@ -8,6 +8,7 @@ import { WaveformVisualizer } from '@/components/visualizers/WaveformVisualizer'
 import { getParameter } from '@/engine/parameters/registry';
 import { useSynthStore } from '@/stores/synthStore';
 import styles from './LearningView.module.css';
+import { t } from '@/i18n/t';
 
 /**
  * Learning View: the same parameter model as the Hardware View, laid out in
@@ -122,7 +123,7 @@ function ParamRow({ id }: { id: string }) {
         type="button"
         className={styles.paramName}
         onClick={() => select(id)}
-        title="Explain this parameter"
+        title={t('Explain this parameter')}
       >
         {def.name}
       </button>
@@ -134,13 +135,13 @@ function ParamRow({ id }: { id: string }) {
 export function LearningView() {
   return (
     <div className={styles.stack}>
-      <nav className={styles.flow} aria-label="Signal flow">
-        Signal flow:
+      <nav className={styles.flow} aria-label={t('Signal flow')}>
+        {t('Signal flow:')}
         {STAGES.map((s, i) => (
           <span key={s.id} style={{ display: 'contents' }}>
             {i > 0 && <span aria-hidden>→</span>}
             <a className={styles.flowStep} href={`#stage-${s.id}`}>
-              {s.title.split(':')[0]}
+              {t(s.title).split(/\s?:/)[0]}
             </a>
           </span>
         ))}
@@ -148,17 +149,17 @@ export function LearningView() {
       {STAGES.map((stage, i) => (
         <Card
           key={stage.id}
-          title={stage.title}
+          title={t(stage.title)}
           actions={<span className={styles.step}>{String(i + 1).padStart(2, '0')}</span>}
         >
           <div id={`stage-${stage.id}`} className={styles.stage}>
-            <p className={styles.hint}>{stage.intro}</p>
+            <p className={styles.hint}>{t(stage.intro)}</p>
             {stage.visual}
             <div>
               <div className={styles.columns}>
                 {stage.columns.map((col, j) => (
                   <div key={j}>
-                    {col.title && <p className={styles.columnTitle}>{col.title}</p>}
+                    {col.title && <p className={styles.columnTitle}>{t(col.title)}</p>}
                     <div className={styles.params}>
                       {col.params.map((id) => (
                         <ParamRow key={id} id={id} />

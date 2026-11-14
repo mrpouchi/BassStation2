@@ -8,6 +8,7 @@ import { formatValue } from '@/engine/parameters/registry';
 import type { ParameterDefinition, SectionId } from '@/engine/parameters/types';
 import { useSynthStore } from '@/stores/synthStore';
 import styles from './SynthLabPage.module.css';
+import { t } from '@/i18n/t';
 
 function matches(def: ParameterDefinition, query: string): boolean {
   if (!query) return true;
@@ -45,18 +46,18 @@ export function ParametersTab() {
         <input
           className={styles.search}
           type="search"
-          placeholder="Search parameters, concepts or MIDI numbers…"
-          aria-label="Search parameters"
+          placeholder={t('Search parameters, concepts or MIDI numbers…')}
+          aria-label={t('Search parameters')}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
         <select
           className={styles.selectInput}
-          aria-label="Filter by section"
+          aria-label={t('Filter by section')}
           value={section}
           onChange={(e) => setSection(e.target.value as SectionId | 'all')}
         >
-          <option value="all">All sections</option>
+          <option value="all">{t('All sections')}</option>
           {SECTIONS.map((s) => (
             <option key={s.id} value={s.id}>
               {s.name}
@@ -64,12 +65,14 @@ export function ParametersTab() {
           ))}
         </select>
         <span className={styles.count}>
-          {total} of {PARAMETERS.length}
+          {t('{n} of {total}', { n: total, total: PARAMETERS.length })}
         </span>
       </div>
 
       {groups.length === 0 && (
-        <EmptyState title="No parameters match">Try a different search term or section.</EmptyState>
+        <EmptyState title={t('No parameters match')}>
+          {t('Try a different search term or section.')}
+        </EmptyState>
       )}
 
       {groups.map(({ section: s, params }) => (
@@ -103,7 +106,7 @@ export function ParametersTab() {
                     <span className={styles.rowBadge}>
                       {p.access.kind === 'on-key' && <Badge tone="info">On-Key</Badge>}
                       {p.access.kind === 'function-modifier' && <Badge tone="info">Function</Badge>}
-                      {p.scope === 'panel' && <Badge>Routing</Badge>}
+                      {p.scope === 'panel' && <Badge>{t('Routing')}</Badge>}
                     </span>
                   </button>
                 </li>

@@ -4,6 +4,7 @@ import { at } from './layout';
 import { ariaNow, ariaRange, handleSliderKey } from './sliderKeys';
 import { useBoundControl } from './useBoundControl';
 import { usePointerDrag } from './usePointerDrag';
+import { t } from '@/i18n/t';
 
 /** Pitch (spring-loaded, returns to centre) or Mod wheel. */
 export function HwWheel({
@@ -35,13 +36,15 @@ export function HwWheel({
       <div
         role="slider"
         tabIndex={0}
-        aria-label={`${control.label} wheel`}
+        aria-label={t('{label} wheel', { label: control.label })}
         aria-orientation="vertical"
         aria-valuemin={def ? ariaRange(def).min : 0}
         aria-valuemax={def ? ariaRange(def).max : 1}
         aria-valuenow={def && value !== undefined ? ariaNow(def, value) : 0}
         aria-valuetext={def && value !== undefined ? formatValue(def, value) : undefined}
-        title={spring ? 'Pitch wheel: drag and release; it springs back to centre' : 'Mod wheel'}
+        title={
+          spring ? t('Pitch wheel: drag and release; it springs back to centre') : t('Mod wheel')
+        }
         className={[styles.wheel, styles.interactive, selected && styles.selected]
           .filter(Boolean)
           .join(' ')}

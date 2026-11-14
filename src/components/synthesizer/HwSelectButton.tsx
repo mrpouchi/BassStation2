@@ -3,6 +3,7 @@ import { formatValue, stepValue } from '@/engine/parameters/registry';
 import styles from './Hardware.module.css';
 import { at } from './layout';
 import { useBoundControl } from './useBoundControl';
+import { t } from '@/i18n/t';
 
 interface HwSelectButtonProps {
   controlId: string;
@@ -87,7 +88,10 @@ export function HwSelectButton({
         .filter(Boolean)
         .join(' ')}
       style={{ borderRadius: 3 }}
-      aria-label={`${control.label}: ${current}. Activate for next option.`}
+      aria-label={t('{label}: {value}. Activate for next option.', {
+        label: control.label,
+        value: current,
+      })}
       title={`${def.name}: ${current}`}
       onClick={() => value !== undefined && set(stepValue(def, value, 1, true))}
       onFocus={select}

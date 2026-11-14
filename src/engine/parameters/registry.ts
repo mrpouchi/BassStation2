@@ -8,6 +8,7 @@ import type {
   ParameterValue,
   SectionId,
 } from './types';
+import { t } from '@/i18n/t';
 
 const parameterById = new Map<string, ParameterDefinition>(PARAMETERS.map((p) => [p.id, p]));
 const controlById = new Map<string, ControlDefinition>(CONTROLS.map((c) => [c.id, c]));
@@ -95,7 +96,7 @@ export function formatValue(def: ParameterDefinition, value: ParameterValue): st
     case 'enum':
       return def.options.find((o) => o.value === value)?.label ?? String(value);
     case 'toggle': {
-      const [off, on] = def.labels ?? ['Off', 'On'];
+      const [off, on] = def.labels ?? [t('Off'), t('On')];
       return value === true ? on : off;
     }
     case 'continuous': {
@@ -270,14 +271,16 @@ export function describeAccess(def: ParameterDefinition): string {
   const a = def.access;
   switch (a.kind) {
     case 'panel':
-      return 'Panel control';
+      return t('Panel control');
     case 'on-key':
       return a.presses === 1
-        ? `Function + ${a.key} key`
-        : `Function + ${a.key} key, pressed ${a.presses}×`;
+        ? t('Function + {key} key', { key: a.key })
+        : t('Function + {key} key, pressed {n}×', { key: a.key, n: a.presses });
     case 'function-modifier':
-      return `Hold Function and turn ${findControl(a.controlId)?.label ?? a.controlId}`;
+      return t('Hold Function and turn {control}', {
+        control: findControl(a.controlId)?.label ?? a.controlId,
+      });
     case 'midi-only':
-      return 'MIDI only';
+      return t('MIDI only');
   }
 }

@@ -2,6 +2,7 @@ import { LOWEST_KEY_MIDI, midiToHz, noteName } from '@/engine/visuals/notes';
 import { num, useSynthValues } from '@/hooks/useSynthValues';
 import { VizFrame } from './VizFrame';
 import s from './VizFrame.module.css';
+import { t } from '@/i18n/t';
 
 const W = 480;
 const H = 120;
@@ -19,23 +20,25 @@ export function KeyRangeVisualizer() {
 
   return (
     <VizFrame
-      title="Keyboard range"
+      title={t('Keyboard range')}
       readout={
         <>
           <span>
-            25 keys play{' '}
+            {t('25 keys play')}{' '}
             <strong>
               {noteName(low)} – {noteName(high)}
             </strong>
           </span>
           <span>
-            Lowest key <strong>{midiToHz(low).toFixed(1)} Hz</strong> at 8'
+            {t('Lowest key')} <strong>{midiToHz(low).toFixed(1)} Hz</strong> {t("at 8'")}
           </span>
         </>
       }
-      caption="Where the two-octave keyboard sits in the full MIDI range. Octave shifts move it in 12-semitone steps (−4 to +5) and Transpose in single semitones (±12). Note names follow Novation's convention (A3 = 440 Hz)."
+      caption={t(
+        "Where the two-octave keyboard sits in the full MIDI range. Octave shifts move it in 12-semitone steps (−4 to +5) and Transpose in single semitones (±12). Note names follow Novation's convention (A3 = 440 Hz).",
+      )}
     >
-      <svg viewBox={`0 0 ${W} ${H}`} className={s.svg} role="img" aria-label="Keyboard range">
+      <svg viewBox={`0 0 ${W} ${H}`} className={s.svg} role="img" aria-label={t('Keyboard range')}>
         <rect
           x={x(low)}
           y={14}

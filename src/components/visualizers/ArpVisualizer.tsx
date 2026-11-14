@@ -5,6 +5,7 @@ import { bool, num, str, useSynthValues } from '@/hooks/useSynthValues';
 import { linear } from './svg';
 import { VizFrame } from './VizFrame';
 import s from './VizFrame.module.css';
+import { t } from '@/i18n/t';
 
 const W = 480;
 const H = 170;
@@ -27,27 +28,30 @@ export function ArpVisualizer() {
 
   return (
     <VizFrame
-      title="Arpeggio pattern"
+      title={t('Arpeggio pattern')}
       readout={
         <>
           <span>
-            Held chord <strong>{HELD.map(noteName).join(' ')}</strong> (played E, C, G)
+            {t('Held chord')} <strong>{HELD.map(noteName).join(' ')}</strong>{' '}
+            {t('(played E, C, G)')}
           </span>
           <span>
-            Mode <strong>{sequencerMode ? 'sequencer (shown as Up)' : rawMode}</strong>
+            {t('Mode')} <strong>{sequencerMode ? t('sequencer (shown as Up)') : rawMode}</strong>
           </span>
           <span>
-            Arp <strong>{bool(v['arp.on']) ? 'On' : 'Off'}</strong>
+            Arp <strong>{bool(v['arp.on']) ? t('On') : t('Off')}</strong>
           </span>
         </>
       }
-      caption="Note order for the first 16 steps, following the Arp Mode table (p. 52). Every step is drawn the same length here. The Rhythm pattern decides the real timing, rests and accents. Random uses a fixed example sequence."
+      caption={t(
+        'Note order for the first 16 steps, following the Arp Mode table (p. 52). Every step is drawn the same length here. The Rhythm pattern decides the real timing, rests and accents. Random uses a fixed example sequence.',
+      )}
     >
       <svg
         viewBox={`0 0 ${W} ${H}`}
         className={s.svg}
         role="img"
-        aria-label="Arpeggiator note order"
+        aria-label={t('Arpeggiator note order')}
       >
         {Array.from({ length: hi - lo + 3 }, (_, i) => lo - 1 + i).map((n) => (
           <line key={n} x1={8} x2={W - 8} y1={mapY(n)} y2={mapY(n)} className={s.grid} />

@@ -6,6 +6,7 @@ import { num, str, useSynthValues } from '@/hooks/useSynthValues';
 import { linear, linePath } from './svg';
 import { VizFrame } from './VizFrame';
 import s from './VizFrame.module.css';
+import { t } from '@/i18n/t';
 
 const IDS = [
   'lfo1.waveform',
@@ -59,26 +60,28 @@ export function LfoVisualizer() {
 
   return (
     <VizFrame
-      title="LFOs"
+      title={t('LFOs')}
       readout={
         <>
           <span>
-            LFO 1 <strong>≈ {fmtHz(lfoHz(sp1))} Hz</strong> → Osc 1 pitch{' '}
+            LFO 1 <strong>≈ {fmtHz(lfoHz(sp1))} Hz</strong> → {t('Osc 1 pitch')}{' '}
             <strong>±{Math.abs(pitch1).toFixed(1)} st</strong>
           </span>
           <span>
-            LFO 2 <strong>≈ {fmtHz(lfoHz(sp2))} Hz</strong> → filter{' '}
+            LFO 2 <strong>≈ {fmtHz(lfoHz(sp2))} Hz</strong> → {t('filter')}{' '}
             <strong>±{Math.abs(filterOct).toFixed(2)} oct</strong>
           </span>
         </>
       }
-      caption="Two seconds after a key press, including delay fade-in and slew. The depth readouts use the manual's calibration (LFO 1: 32 = one octave; LFO 2 → filter: 16 = one octave). The Hz values interpolate the documented points (52 ≈ 3 Hz, 75 ≈ 7.9 Hz, max ≈ 190 Hz). In Sync mode the rate follows the tempo instead."
+      caption={t(
+        "Two seconds after a key press, including delay fade-in and slew. The depth readouts use the manual's calibration (LFO 1: 32 = one octave; LFO 2 → filter: 16 = one octave). The Hz values interpolate the documented points (52 ≈ 3 Hz, 75 ≈ 7.9 Hz, max ≈ 190 Hz). In Sync mode the rate follows the tempo instead.",
+      )}
     >
       <svg
         viewBox={`0 0 ${W} ${H}`}
         className={s.svg}
         role="img"
-        aria-label="LFO 1 and LFO 2 over time"
+        aria-label={t('LFO 1 and LFO 2 over time')}
       >
         <line x1={PAD} x2={W - PAD} y1={map1(0)} y2={map1(0)} className={s.grid} />
         <line x1={PAD} x2={W - PAD} y1={map2(0)} y2={map2(0)} className={s.grid} />
@@ -94,7 +97,7 @@ export function LfoVisualizer() {
           2 s
         </text>
         <text x={PAD} y={H - 4} className={s.tick}>
-          key down
+          {t('key down')}
         </text>
       </svg>
     </VizFrame>

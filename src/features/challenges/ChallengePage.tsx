@@ -17,6 +17,7 @@ import { ParameterInspector } from '@/features/synth-lab/ParameterInspector';
 import { useProgressStore } from '@/stores/progressStore';
 import { useSynthStore } from '@/stores/synthStore';
 import styles from './Challenges.module.css';
+import { t, tn } from '@/i18n/t';
 
 const HIDE_READOUT = { hideReadout: true };
 
@@ -40,10 +41,10 @@ export function ChallengePage() {
   if (!challenge) {
     return (
       <EmptyState
-        title="Challenge not found"
-        actions={<ButtonLink to="/challenges">All challenges</ButtonLink>}
+        title={t('Challenge not found')}
+        actions={<ButtonLink to="/challenges">{t('All challenges')}</ButtonLink>}
       >
-        This challenge does not exist.
+        {t('This challenge does not exist.')}
       </EmptyState>
     );
   }
@@ -59,15 +60,15 @@ export function ChallengePage() {
   return (
     <>
       <PageHeader
-        eyebrow={`Challenge · ${type?.name ?? challenge.type}`}
+        eyebrow={`${t('Challenge')} · ${type?.name ?? challenge.type}`}
         title={challenge.title}
         description={challenge.brief}
         actions={
           solved ? (
-            <Badge tone="success">Solved</Badge>
+            <Badge tone="success">{t('Solved')}</Badge>
           ) : record ? (
             <Badge tone="warning">
-              {record.attempts} attempt{record.attempts === 1 ? '' : 's'}
+              {tn(record.attempts, '{count} attempt', '{count} attempts')}
             </Badge>
           ) : undefined
         }
@@ -77,15 +78,19 @@ export function ChallengePage() {
           {(challenge.start !== undefined ||
             isReconstruction ||
             challenge.type === 'manipulation') && (
-            <Card title="Starting point">
+            <Card title={t('Starting point')}>
               <p className={styles.muted}>
                 {challenge.start
-                  ? 'Load the patch for this challenge. This replaces your current Synth Lab settings, so save anything you want to keep in the Sound Library first.'
-                  : 'Start from the Init Patch for a clean slate, or keep your current settings.'}
+                  ? t(
+                      'Load the patch for this challenge. This replaces your current Synth Lab settings, so save anything you want to keep in the Sound Library first.',
+                    )
+                  : t(
+                      'Start from the Init Patch for a clean slate, or keep your current settings.',
+                    )}
               </p>
               <div className={styles.row}>
                 <Button onClick={loadStart}>
-                  {challenge.start ? 'Load the challenge patch' : 'Reset to Init Patch'}
+                  {challenge.start ? t('Load the challenge patch') : t('Reset to Init Patch')}
                 </Button>
               </div>
             </Card>
@@ -95,15 +100,15 @@ export function ChallengePage() {
             <Card
               title={
                 isReconstruction
-                  ? 'Target vs. yours'
+                  ? t('Target vs. yours')
                   : challenge.type === 'troubleshooting'
-                    ? 'Symptom'
-                    : 'Look at this'
+                    ? t('Symptom')
+                    : t('Look at this')
               }
             >
               <div className={isReconstruction ? styles.compare : undefined}>
                 <div>
-                  {isReconstruction && <p className={styles.label}>Target</p>}
+                  {isReconstruction && <p className={styles.label}>{t('Target')}</p>}
                   <VizOptionsContext.Provider value={HIDE_READOUT}>
                     <ValuesOverrideContext.Provider value={targetValues}>
                       <LessonVisual kind={challenge.target.visual} />
@@ -112,7 +117,7 @@ export function ChallengePage() {
                 </div>
                 {isReconstruction && (
                   <div>
-                    <p className={styles.label}>Your settings (live)</p>
+                    <p className={styles.label}>{t('Your settings (live)')}</p>
                     <LessonVisual kind={challenge.target.visual} />
                   </div>
                 )}
@@ -122,7 +127,7 @@ export function ChallengePage() {
 
           {challenge.panel && <HardwarePanel />}
 
-          <Card title="Your task">
+          <Card title={t('Your task')}>
             <TaskPanel
               key={challenge.id}
               task={challenge.task}
@@ -135,23 +140,23 @@ export function ChallengePage() {
           </Card>
 
           {solved && (
-            <Card title="Takeaway">
+            <Card title={t('Takeaway')}>
               <p className={styles.takeaway}>{challenge.takeaway}</p>
             </Card>
           )}
 
           <div className={styles.row} style={{ justifyContent: 'space-between' }}>
             <Link to="/challenges" className={styles.muted}>
-              All challenges
+              {t('All challenges')}
             </Link>
             {challenge.lesson && LESSONS.has(challenge.lesson) && (
               <Link to={`/learn/${challenge.lesson}`} className={styles.muted}>
-                Review the lesson: {lessonTitle(challenge.lesson)}
+                {t('Review the lesson: {title}', { title: lessonTitle(challenge.lesson) ?? '' })}
               </Link>
             )}
             {next && (
               <ButtonLink to={`/challenges/${next.id}`} variant={solved ? 'primary' : 'secondary'}>
-                Next: {next.title} →
+                {t('Next: {title}', { title: next.title })} →
               </ButtonLink>
             )}
           </div>

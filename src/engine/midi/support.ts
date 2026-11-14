@@ -18,8 +18,7 @@ export function detectWebMidiSupport(
 export const WEB_MIDI_SUPPORT_TEXT: Record<WebMidiSupport, { label: string; detail: string }> = {
   available: {
     label: 'Web MIDI available',
-    detail:
-      'This browser supports USB MIDI. Connecting to a Bass Station II arrives in the MIDI milestone.',
+    detail: 'This browser supports USB MIDI.',
   },
   'insecure-context': {
     label: 'MIDI needs HTTPS',

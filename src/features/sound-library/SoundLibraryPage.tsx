@@ -25,6 +25,7 @@ import { usePersistenceStore } from '@/stores/persistenceStore';
 import { usePresetStore } from '@/stores/presetStore';
 import { useSynthStore } from '@/stores/synthStore';
 import styles from './SoundLibrary.module.css';
+import { t, tn } from '@/i18n/t';
 
 type Sort = 'recent' | 'name';
 
@@ -85,7 +86,7 @@ export function SoundLibraryPage() {
           !q ||
           p.name.toLowerCase().includes(q) ||
           p.description.toLowerCase().includes(q) ||
-          p.tags.some((t) => t.includes(q))
+          p.tags.some((tag) => tag.includes(q))
         );
       })
       .sort((a, b) => (sort === 'name' ? a.name.localeCompare(b.name) : b.updatedAt - a.updatedAt));
@@ -96,24 +97,28 @@ export function SoundLibraryPage() {
 
   const load = (p: Preset) => {
     replaceValues(valuesForLoad(useSynthStore.getState().values, p), 'preset');
-    setMessage(`Loaded “${p.name}” into Synth Lab.`);
+    setMessage(t('Loaded “{name}” into Synth Lab.', { name: p.name }));
   };
 
   const onImport = async (file: File) => {
     const result = parseImportFile(await readFileText(file));
     for (const p of result.presets) await savePreset(p);
     const parts = [
-      `Imported ${result.presets.length} preset${result.presets.length === 1 ? '' : 's'}.`,
+      tn(result.presets.length, 'Imported {count} preset.', 'Imported {count} presets.'),
     ];
     if (result.rejectedParameters > 0)
-      parts.push(`${result.rejectedParameters} unknown or invalid parameter values were ignored.`);
-    if (result.errors.length > 0) parts.push(result.errors.join(' '));
+      parts.push(
+        t('{n} unknown or invalid parameter values were ignored.', {
+          n: result.rejectedParameters,
+        }),
+      );
+    if (result.errors.length > 0) parts.push(result.errors.map((e) => t(e)).join(' '));
     setMessage(parts.join(' '));
   };
 
   const compareTarget =
     compareWith === 'current'
-      ? { name: 'Current settings', values: patchValues(values) }
+      ? { name: t('Current settings'), values: patchValues(values) }
       : all.find((p) => p.id === compareWith);
   const diff =
     selected && compareTarget ? comparePresets(selected.values, compareTarget.values) : [];
@@ -121,27 +126,29 @@ export function SoundLibraryPage() {
   return (
     <>
       <PageHeader
-        eyebrow="Sound Library"
-        title="Your presets"
-        description="Save the sounds you design, describe how you made them, compare them and load them back into Synth Lab. Presets are stored on this device."
+        eyebrow={t('Sound Library')}
+        title={t('Your presets')}
+        description={t(
+          'Save the sounds you design, describe how you made them, compare them and load them back into Synth Lab. Presets are stored on this device.',
+        )}
         actions={
           <div className={styles.row}>
             <Button variant="primary" onClick={() => setCreating(true)}>
-              Save current sound
+              {t('Save current sound')}
             </Button>
-            <Button onClick={() => fileRef.current?.click()}>Import</Button>
+            <Button onClick={() => fileRef.current?.click()}>{t('Import')}</Button>
             <Button
               disabled={presets.length === 0}
               onClick={() => download('bass-station-academy-presets.json', toExportFile(presets))}
             >
-              Export all
+              {t('Export all')}
             </Button>
             <input
               ref={fileRef}
               type="file"
               accept="application/json,.json"
               hidden
-              aria-label="Import presets file"
+              aria-label={t('Import presets file')}
               onChange={(e) => {
                 const f = e.target.files?.[0];
                 if (f) void onImport(f);
@@ -154,8 +161,9 @@ export function SoundLibraryPage() {
 
       {storage === 'unavailable' && (
         <p className={styles.notice}>
-          Local storage is unavailable in this browser session. Presets will be lost when you close
-          the page. Export them to keep them.
+          {t(
+            'Local storage is unavailable in this browser session. Presets will be lost when you close the page. Export them to keep them.',
+          )}
         </p>
       )}
       {message && (
@@ -166,12 +174,16 @@ export function SoundLibraryPage() {
 
       {creating && (
         <Card
-          title="Save current sound"
-          subtitle={`${changedCount} sound parameter${changedCount === 1 ? '' : 's'} differ from the Init Patch.`}
+          title={t('Save current sound')}
+          subtitle={tn(
+            changedCount,
+            '{count} sound parameter differs from the Init Patch.',
+            '{count} sound parameters differ from the Init Patch.',
+          )}
         >
           <PresetForm
             initial={{ name: '', description: '', category: 'other', tags: [] }}
-            submitLabel="Save preset"
+            submitLabel={t('Save preset')}
             onCancel={() => setCreating(false)}
             onSubmit={async (meta) => {
               const now = Date.now();
@@ -186,7 +198,7 @@ export function SoundLibraryPage() {
               await savePreset(preset);
               setCreating(false);
               setSelectedId(preset.id);
-              setMessage(`Saved “${preset.name}”.`);
+              setMessage(t('Saved “{name}”.', { name: preset.name }));
             }}
           />
         </Card>
@@ -196,32 +208,32 @@ export function SoundLibraryPage() {
         <input
           className={`${styles.input} ${styles.search}`}
           type="search"
-          placeholder="Search name, description or tag…"
-          aria-label="Search presets"
+          placeholder={t('Search name, description or tag…')}
+          aria-label={t('Search presets')}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
         <select
           className={styles.select}
-          aria-label="Category"
+          aria-label={t('Category')}
           value={category}
           onChange={(e) => setCategory(e.target.value as PresetCategory | 'all')}
         >
-          <option value="all">All categories</option>
+          <option value="all">{t('All categories')}</option>
           {PRESET_CATEGORIES.map((c) => (
             <option key={c} value={c}>
-              {CATEGORY_LABELS[c]}
+              {t(CATEGORY_LABELS[c])}
             </option>
           ))}
         </select>
         <select
           className={styles.select}
-          aria-label="Sort"
+          aria-label={t('Sort')}
           value={sort}
           onChange={(e) => setSort(e.target.value as Sort)}
         >
-          <option value="recent">Recently changed</option>
-          <option value="name">Name</option>
+          <option value="recent">{t('Recently changed')}</option>
+          <option value="name">{t('Name')}</option>
         </select>
         <label className={styles.row}>
           <input
@@ -229,20 +241,21 @@ export function SoundLibraryPage() {
             checked={favoritesOnly}
             onChange={(e) => setFavoritesOnly(e.target.checked)}
           />{' '}
-          Favourites
+          {t('Favourites')}
         </label>
       </div>
 
       <div className={styles.layout}>
         <div>
-          <p className={styles.sectionTitle}>My presets ({mine.length})</p>
+          <p className={styles.sectionTitle}>{t('My presets ({n})', { n: mine.length })}</p>
           {presets.length === 0 ? (
-            <EmptyState title="No saved presets yet">
-              Design a sound in Synth Lab, then click “Save current sound”. You can also load one of
-              the examples below.
+            <EmptyState title={t('No saved presets yet')}>
+              {t(
+                'Design a sound in Synth Lab, then click “Save current sound”. You can also load one of the examples below.',
+              )}
             </EmptyState>
           ) : mine.length === 0 ? (
-            <p className={styles.muted}>No presets match these filters.</p>
+            <p className={styles.muted}>{t('No presets match these filters.')}</p>
           ) : (
             <PresetList
               items={mine}
@@ -253,7 +266,9 @@ export function SoundLibraryPage() {
           )}
           {examples.length > 0 && (
             <>
-              <p className={styles.sectionTitle}>Academy examples ({examples.length})</p>
+              <p className={styles.sectionTitle}>
+                {t('Academy examples ({n})', { n: examples.length })}
+              </p>
               <PresetList items={examples} selectedId={selectedId} onSelect={setSelectedId} />
             </>
           )}
@@ -261,27 +276,32 @@ export function SoundLibraryPage() {
 
         <div className={styles.side}>
           {!selected ? (
-            <Card title="Details">
-              <p className={styles.muted}>Select a preset to load, edit, compare or export it.</p>
+            <Card title={t('Details')}>
+              <p className={styles.muted}>
+                {t('Select a preset to load, edit, compare or export it.')}
+              </p>
             </Card>
           ) : (
             <>
               <Card
                 title={selected.name}
-                subtitle={`${CATEGORY_LABELS[selected.category]} · ${Object.keys(selected.values).length} stored values`}
-                actions={isExample ? <Badge tone="info">Example</Badge> : undefined}
+                subtitle={t('{category} · {n} stored values', {
+                  category: t(CATEGORY_LABELS[selected.category]),
+                  n: Object.keys(selected.values).length,
+                })}
+                actions={isExample ? <Badge tone="info">{t('Example')}</Badge> : undefined}
               >
                 {selected.description && <p>{selected.description}</p>}
                 {selected.tags.length > 0 && (
                   <div className={styles.row}>
-                    {selected.tags.map((t) => (
-                      <Badge key={t}>{t}</Badge>
+                    {selected.tags.map((tag) => (
+                      <Badge key={tag}>{tag}</Badge>
                     ))}
                   </div>
                 )}
                 <div className={styles.row}>
                   <Button variant="primary" onClick={() => load(selected)}>
-                    Load
+                    {t('Load')}
                   </Button>
                   <Button
                     onClick={() => {
@@ -289,7 +309,7 @@ export function SoundLibraryPage() {
                       navigate('/synth-lab');
                     }}
                   >
-                    Load &amp; open Synth Lab
+                    {t('Load & open Synth Lab')}
                   </Button>
                 </div>
                 <div className={styles.row}>
@@ -300,18 +320,18 @@ export function SoundLibraryPage() {
                       const copy: Preset = {
                         ...selected,
                         id: newId(),
-                        name: `${selected.name} (copy)`,
+                        name: t('{name} (copy)', { name: selected.name }),
                         favorite: false,
                         createdAt: now,
                         updatedAt: now,
-                        tags: selected.tags.filter((t) => t !== 'example'),
+                        tags: selected.tags.filter((tag) => tag !== 'example'),
                       };
                       await savePreset(copy);
                       setSelectedId(copy.id);
-                      setMessage(`Duplicated as “${copy.name}”.`);
+                      setMessage(t('Duplicated as “{name}”.', { name: copy.name }));
                     }}
                   >
-                    Duplicate
+                    {t('Duplicate')}
                   </Button>
                   <Button
                     size="sm"
@@ -319,17 +339,21 @@ export function SoundLibraryPage() {
                       download(`${slug(selected.name)}.json`, toExportFile([selected]))
                     }
                   >
-                    Export
+                    {t('Export')}
                   </Button>
                   {!isExample && (
                     <>
                       <Button
                         size="sm"
-                        title="Replace this preset's sound with your current Synth Lab settings"
+                        title={t(
+                          "Replace this preset's sound with your current Synth Lab settings",
+                        )}
                         onClick={async () => {
                           if (
                             !window.confirm(
-                              `Overwrite “${selected.name}” with your current settings?`,
+                              t('Overwrite “{name}” with your current settings?', {
+                                name: selected.name,
+                              }),
                             )
                           )
                             return;
@@ -338,23 +362,31 @@ export function SoundLibraryPage() {
                             values: patchValues(values),
                             updatedAt: Date.now(),
                           });
-                          setMessage(`Updated “${selected.name}” with the current settings.`);
+                          setMessage(
+                            t('Updated “{name}” with the current settings.', {
+                              name: selected.name,
+                            }),
+                          );
                         }}
                       >
-                        Overwrite with current
+                        {t('Overwrite with current')}
                       </Button>
                       <Button
                         size="sm"
                         variant="ghost"
                         onClick={async () => {
-                          if (!window.confirm(`Delete “${selected.name}”? This cannot be undone.`))
+                          if (
+                            !window.confirm(
+                              t('Delete “{name}”? This cannot be undone.', { name: selected.name }),
+                            )
+                          )
                             return;
                           await deletePreset(selected.id);
                           setSelectedId(null);
-                          setMessage(`Deleted “${selected.name}”.`);
+                          setMessage(t('Deleted “{name}”.', { name: selected.name }));
                         }}
                       >
-                        Delete
+                        {t('Delete')}
                       </Button>
                     </>
                   )}
@@ -362,28 +394,28 @@ export function SoundLibraryPage() {
               </Card>
 
               {!isExample && (
-                <Card title="Edit details">
+                <Card title={t('Edit details')}>
                   <PresetForm
                     key={selected.id}
                     initial={selected}
-                    submitLabel="Save details"
+                    submitLabel={t('Save details')}
                     onSubmit={async (meta) => {
                       await savePreset({ ...selected, ...meta, updatedAt: Date.now() });
-                      setMessage('Details saved.');
+                      setMessage(t('Details saved.'));
                     }}
                   />
                 </Card>
               )}
 
-              <Card title="Compare">
+              <Card title={t('Compare')}>
                 <label className={styles.field}>
-                  Compare “{selected.name}” with
+                  {t('Compare “{name}” with', { name: selected.name })}
                   <select
                     className={styles.select}
                     value={compareWith}
                     onChange={(e) => setCompareWith(e.target.value)}
                   >
-                    <option value="current">Current Synth Lab settings</option>
+                    <option value="current">{t('Current Synth Lab settings')}</option>
                     {all
                       .filter((p) => p.id !== selected.id)
                       .map((p) => (
@@ -394,12 +426,12 @@ export function SoundLibraryPage() {
                   </select>
                 </label>
                 {diff.length === 0 ? (
-                  <p className={styles.muted}>The two sounds are identical.</p>
+                  <p className={styles.muted}>{t('The two sounds are identical.')}</p>
                 ) : (
                   <table className={styles.diff}>
                     <thead>
                       <tr>
-                        <th>Parameter</th>
+                        <th>{t('Parameter')}</th>
                         <th>{selected.name}</th>
                         <th>{compareTarget?.name}</th>
                       </tr>
@@ -424,10 +456,9 @@ export function SoundLibraryPage() {
         </div>
       </div>
       <p className={styles.muted} style={{ marginTop: 24 }}>
-        Preset files use the Academy’s own JSON format. Sending presets to the synth’s patch
-        memories (SysEx) is not supported, because Novation does not document the patch format. With
-        a MIDI connection you can send the current settings parameter by parameter from the Hardware
-        page.
+        {t(
+          'Preset files use the Academy’s own JSON format. Sending presets to the synth’s patch memories (SysEx) is not supported, because Novation does not document the patch format. With a MIDI connection you can send the current settings parameter by parameter from the Hardware page.',
+        )}
       </p>
     </>
   );
@@ -463,7 +494,9 @@ function PresetList({
               type="button"
               className={[styles.star, p.favorite && styles.starOn].filter(Boolean).join(' ')}
               aria-label={
-                p.favorite ? `Remove ${p.name} from favourites` : `Add ${p.name} to favourites`
+                p.favorite
+                  ? t('Remove {name} from favourites', { name: p.name })
+                  : t('Add {name} to favourites', { name: p.name })
               }
               onClick={(e) => {
                 e.stopPropagation();
@@ -477,9 +510,9 @@ function PresetList({
           )}
           <span style={{ minWidth: 0 }}>
             <span className={styles.itemName}>{p.name}</span>
-            <span className={styles.itemDesc}>{p.description || 'No description'}</span>
+            <span className={styles.itemDesc}>{p.description || t('No description')}</span>
           </span>
-          <Badge>{CATEGORY_LABELS[p.category]}</Badge>
+          <Badge>{t(CATEGORY_LABELS[p.category])}</Badge>
         </div>
       ))}
     </div>
@@ -524,7 +557,7 @@ function PresetForm({
             ...new Set(
               tags
                 .split(',')
-                .map((t) => t.trim().toLowerCase())
+                .map((tag) => tag.trim().toLowerCase())
                 .filter(Boolean),
             ),
           ].slice(0, 12),
@@ -532,7 +565,7 @@ function PresetForm({
       }}
     >
       <label className={styles.field}>
-        Name
+        {t('Name')}
         <input
           className={styles.input}
           value={name}
@@ -542,7 +575,7 @@ function PresetForm({
         />
       </label>
       <label className={styles.field}>
-        Description: how you made it, what to try
+        {t('Description: how you made it, what to try')}
         <textarea
           className={styles.textarea}
           value={description}
@@ -552,7 +585,7 @@ function PresetForm({
       </label>
       <div className={styles.row}>
         <label className={styles.field} style={{ flex: 1 }}>
-          Category
+          {t('Category')}
           <select
             className={styles.select}
             value={category}
@@ -560,13 +593,13 @@ function PresetForm({
           >
             {PRESET_CATEGORIES.map((c) => (
               <option key={c} value={c}>
-                {CATEGORY_LABELS[c]}
+                {t(CATEGORY_LABELS[c])}
               </option>
             ))}
           </select>
         </label>
         <label className={styles.field} style={{ flex: 2 }}>
-          Tags (comma-separated)
+          {t('Tags (comma-separated)')}
           <input className={styles.input} value={tags} onChange={(e) => setTags(e.target.value)} />
         </label>
       </div>
@@ -576,7 +609,7 @@ function PresetForm({
         </Button>
         {onCancel && (
           <Button variant="ghost" onClick={onCancel}>
-            Cancel
+            {t('Cancel')}
           </Button>
         )}
       </div>

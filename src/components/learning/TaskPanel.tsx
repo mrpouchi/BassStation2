@@ -4,6 +4,7 @@ import { findParameter } from '@/engine/parameters/registry';
 import { describeCondition, evaluateTask, type Task, type TaskResult } from '@/engine/tasks/tasks';
 import { useSynthStore } from '@/stores/synthStore';
 import styles from './TaskPanel.module.css';
+import { t } from '@/i18n/t';
 
 interface TaskPanelProps {
   task: Task;
@@ -38,7 +39,7 @@ export function TaskPanel({
       <p className={styles.prompt}>{task.prompt}</p>
 
       {task.kind === 'set' && (revealTargets || result) && (
-        <ul className={styles.targets} aria-label="Targets">
+        <ul className={styles.targets} aria-label={t('Targets')}>
           {task.conditions.map((c, i) => {
             const r = (result ?? live)?.results[i];
             const checked = result !== null;
@@ -53,13 +54,15 @@ export function TaskPanel({
                   ]
                     .filter(Boolean)
                     .join(' ')}
-                  aria-label={met ? 'met' : 'not met'}
+                  aria-label={met ? t('met') : t('not met')}
                 >
                   {met ? '✓' : checked ? '!' : ''}
                 </span>
                 <span>
                   {revealTargets ? describeCondition(c) : met ? describeCondition(c) : c.hint}
-                  {r && <span className={styles.hint}>Now: {r.current}</span>}
+                  {r && (
+                    <span className={styles.hint}>{t('Now: {value}', { value: r.current })}</span>
+                  )}
                   {checked && !met && revealTargets && (
                     <span className={styles.hint}>{c.hint}</span>
                   )}
@@ -102,9 +105,9 @@ export function TaskPanel({
 
       {task.kind === 'select' && (
         <p className={styles.hint}>
-          Selected:{' '}
+          {t('Selected:')}{' '}
           <strong>
-            {selectedId ? (findParameter(selectedId)?.name ?? selectedId) : 'nothing yet'}
+            {selectedId ? (findParameter(selectedId)?.name ?? selectedId) : t('nothing yet')}
           </strong>
         </p>
       )}
@@ -119,11 +122,11 @@ export function TaskPanel({
           onClick={check}
           disabled={task.kind === 'choice' && choice === undefined}
         >
-          Check
+          {t('Check')}
         </Button>
         {result && !result.passed && (
           <span className={styles.hint}>
-            Adjust and check again. There is no limit on attempts.
+            {t('Adjust and check again. There is no limit on attempts.')}
           </span>
         )}
       </div>
@@ -132,7 +135,7 @@ export function TaskPanel({
         <div
           className={`${styles.feedback} ${result.passed ? styles.success : styles.retry}`}
           role="status"
-          aria-label="Exercise feedback"
+          aria-label={t('Exercise feedback')}
         >
           {result.passed
             ? successMessage

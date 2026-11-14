@@ -6,6 +6,7 @@ import { CURRICULUM } from '@/data/lessons/curriculum';
 import { LESSON_ORDER, lessonKey, nextLessonKey } from '@/data/lessons';
 import { useProgressStore } from '@/stores/progressStore';
 import styles from './LearnPage.module.css';
+import { t } from '@/i18n/t';
 
 export function LearnPage() {
   const completed = useProgressStore((s) => s.lessons);
@@ -16,17 +17,17 @@ export function LearnPage() {
   return (
     <>
       <PageHeader
-        eyebrow="Learn"
-        title="Curriculum"
-        description="Eight chapters, from what sound is to designing your own patches. Each lesson has an objective, an explanation, a demonstration, an experiment and an exercise with feedback. Open any lesson in any order. Nothing is locked."
+        eyebrow={t('Learn')}
+        title={t('Curriculum')}
+        description={t(
+          'Eight chapters, from what sound is to designing your own patches. Each lesson has an objective, an explanation, a demonstration, an experiment and an exercise with feedback. Open any lesson in any order. Nothing is locked.',
+        )}
       />
       <div className={styles.summary}>
-        <span>
-          {done} of {total} lessons completed
-        </span>
+        <span>{t('{done} of {total} lessons completed', { done, total })}</span>
         {next && (
           <ButtonLink to={`/learn/${next}`} variant="primary">
-            {done === 0 ? 'Start with lesson 1' : 'Continue learning'}
+            {done === 0 ? t('Start with lesson 1') : t('Continue learning')}
           </ButtonLink>
         )}
       </div>
@@ -39,7 +40,10 @@ export function LearnPage() {
             <Card
               key={chapter.id}
               title={chapter.title}
-              subtitle={`${chapterDone} / ${chapter.lessons.length} completed`}
+              subtitle={t('{done} / {total} completed', {
+                done: chapterDone,
+                total: chapter.lessons.length,
+              })}
               actions={
                 <span className={styles.number}>{String(chapter.number).padStart(2, '0')}</span>
               }
@@ -60,7 +64,7 @@ export function LearnPage() {
                           {chapter.number}.{i + 1} {l.title}
                         </span>
                         {completed[key] && (
-                          <span className={styles.check} aria-label="completed">
+                          <span className={styles.check} aria-label={t('completed')}>
                             ✓
                           </span>
                         )}

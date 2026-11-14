@@ -6,6 +6,7 @@ import { useHardwareUiStore } from '@/stores/hardwareUiStore';
 import { useSynthStore } from '@/stores/synthStore';
 import styles from './Hardware.module.css';
 import { KEYBOARD, PANEL } from './layout';
+import { t } from '@/i18n/t';
 
 const WHITE_PATTERN = [0, 2, 4, 5, 7, 9, 11];
 const BLACK_OFFSETS: Record<number, number> = { 1: 0, 3: 1, 6: 3, 8: 4, 10: 5 };
@@ -156,8 +157,8 @@ export function HwKeyboard() {
             ui.functionActive && entry
               ? `${entry.group}: ${entry.label}`
               : ui.transposeArmed
-                ? `Transpose to ${k.index - 12 >= 0 ? '+' : ''}${k.index - 12}`
-                : `Key ${noteName(midi)}`;
+                ? t('Transpose to {n}', { n: `${k.index - 12 >= 0 ? '+' : ''}${k.index - 12}` })
+                : t('Key {note}', { note: noteName(midi) });
           return (
             <button
               key={k.index}

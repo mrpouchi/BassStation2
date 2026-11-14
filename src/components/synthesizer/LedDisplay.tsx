@@ -4,6 +4,7 @@ import { useHardwareUiStore } from '@/stores/hardwareUiStore';
 import { useSynthStore } from '@/stores/synthStore';
 import { displayText } from './displayText';
 import styles from './Hardware.module.css';
+import { t } from '@/i18n/t';
 
 const SHOW_MS = 1600;
 
@@ -49,13 +50,13 @@ export function LedDisplay() {
       className={styles.display}
       role="status"
       aria-live="polite"
-      aria-label={`Display: ${text}`}
+      aria-label={t('Display: {text}', { text })}
     >
       <span className={styles.digits}>{text.padStart(3, ' ')}</span>
       <span
         className={styles.orgArrows}
         aria-hidden
-        title="Org. Value: lit when a value differs from the Init Patch"
+        title={t('Org. Value: lit when a value differs from the Init Patch')}
       >
         <span className={changed ? styles.orgOn : undefined}>▶</span>
         <span className={changed ? styles.orgOn : undefined}>◀</span>

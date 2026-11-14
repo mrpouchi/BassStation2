@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { Badge } from '@/components/ui/Badge';
 import { useVizOptions } from '@/hooks/valuesOverride';
 import styles from './VizFrame.module.css';
+import { t } from '@/i18n/t';
 
 interface VizFrameProps {
   title: string;
@@ -22,9 +23,9 @@ export function VizFrame({ title, controls, readout, caption, children }: VizFra
           {controls}
           <Badge
             tone="info"
-            title="A mathematical illustration, not a measurement of the analog circuit."
+            title={t('A mathematical illustration, not a measurement of the analog circuit.')}
           >
-            Theoretical model
+            {t('Theoretical model')}
           </Badge>
         </span>
       </div>

@@ -4,6 +4,7 @@ import { at } from './layout';
 import { ariaNow, ariaRange, handleSliderKey } from './sliderKeys';
 import { useBoundControl } from './useBoundControl';
 import { usePointerDrag } from './usePointerDrag';
+import { t } from '@/i18n/t';
 
 export function HwFader({ controlId, x, y }: { controlId: string; x: number; y: number }) {
   const { control, def, value, targets, selected, set, select } = useBoundControl(controlId);
@@ -16,14 +17,17 @@ export function HwFader({ controlId, x, y }: { controlId: string; x: number; y: 
     (next) => def && set(fromNormalized(def, next)),
     120,
   );
-  const names = targets.length > 1 ? `${control.label} (Amp + Mod)` : (def?.name ?? control.label);
+  const names =
+    targets.length > 1
+      ? t('{label} (Amp + Mod)', { label: control.label })
+      : (def?.name ?? control.label);
 
   return (
     <div className={styles.place} style={at(x, y)}>
       <div
         role="slider"
         tabIndex={0}
-        aria-label={`${control.label} fader — ${names}`}
+        aria-label={t('{label} fader — {names}', { label: control.label, names })}
         aria-orientation="vertical"
         aria-valuemin={def ? ariaRange(def).min : 0}
         aria-valuemax={def ? ariaRange(def).max : 1}

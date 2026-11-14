@@ -4,6 +4,7 @@ import { num, useSynthValues } from '@/hooks/useSynthValues';
 import { linear, linePath } from './svg';
 import { VizFrame } from './VizFrame';
 import s from './VizFrame.module.css';
+import { t } from '@/i18n/t';
 
 const W = 480;
 const H = 160;
@@ -28,31 +29,33 @@ export function GlideVisualizer() {
 
   return (
     <VizFrame
-      title="Glide"
+      title={t('Glide')}
       readout={
         <>
           <span>
-            Glide{' '}
+            {t('Glide')}{' '}
             <strong>
               {glide === 0
-                ? 'Off'
+                ? t('Off')
                 : `≈ ${glideSeconds(glide) < 1 ? Math.round(glideSeconds(glide) * 1000) + ' ms' : glideSeconds(glide).toFixed(1) + ' s'}`}
             </strong>
           </span>
           {div > 0 && (
             <span>
-              Divergence <strong>{div}</strong>: Osc 2 lags behind
+              {t('Divergence')} <strong>{div}</strong>: {t('Osc 2 lags behind')}
             </span>
           )}
         </>
       }
-      caption="Pitch moving from C to the C an octave above. Novation does not publish glide times, so this time scale is illustrative."
+      caption={t(
+        'Pitch moving from C to the C an octave above. Novation does not publish glide times, so this time scale is illustrative.',
+      )}
     >
       <svg
         viewBox={`0 0 ${W} ${H}`}
         className={s.svg}
         role="img"
-        aria-label="Pitch glide over time"
+        aria-label={t('Pitch glide over time')}
       >
         <line x1={mapX(0)} x2={mapX(0)} y1={PAD} y2={H - 18} className={s.marker} />
         <text x={mapX(0) + 4} y={PAD + 10} className={s.tick}>

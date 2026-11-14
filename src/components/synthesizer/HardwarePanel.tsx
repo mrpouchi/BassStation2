@@ -13,6 +13,7 @@ import { HwSwitch } from './HwSwitch';
 import { HwToggleButton } from './HwToggleButton';
 import { HwWheel } from './HwWheel';
 import { LedDisplay } from './LedDisplay';
+import { t } from '@/i18n/t';
 
 const WAVE_LEDS = [
   ['sine', '∿'],
@@ -70,7 +71,7 @@ export function HardwarePanel() {
 
   return (
     <div className={styles.wrap}>
-      <div className={styles.panel} role="group" aria-label="Bass Station II virtual panel">
+      <div className={styles.panel} role="group" aria-label={t('Bass Station II virtual panel')}>
         {SECTION_BARS.map((b) => (
           <div key={b.label} className={styles.bar} style={span(b.x1, b.x2, b.y)}>
             {b.label}
@@ -88,7 +89,9 @@ export function HardwarePanel() {
             type="button"
             className={styles.hwButton}
             disabled
-            title="Saving to patch memories happens on the hardware. Saving presets in the app arrives with the Sound Library."
+            title={t(
+              'Saving to patch memories happens on the hardware. In the app, save presets in the Sound Library.',
+            )}
           >
             Save
           </button>
@@ -103,11 +106,13 @@ export function HardwarePanel() {
               type="button"
               className={`${styles.hwButton} ${styles.arrowButton}`}
               disabled={!onKeyParam}
-              aria-label={dir < 0 ? 'Patch/Value down' : 'Patch/Value up'}
+              aria-label={dir < 0 ? t('Patch/Value down') : t('Patch/Value up')}
               title={
                 onKeyParam
-                  ? `Change ${onKeyParam.name}`
-                  : 'Changes the value of an On-Key function. Hold Function and press a key first. Patch memories are on the hardware.'
+                  ? t('Change {name}', { name: onKeyParam.name })
+                  : t(
+                      'Changes the value of an On-Key function. Hold Function and press a key first. Patch memories are on the hardware.',
+                    )
               }
               onClick={() => nudgeOnKey(dir)}
             >
@@ -171,7 +176,7 @@ export function HardwarePanel() {
           className={`${styles.place} ${styles.option}`}
           style={{ ...at(512, 227), flexDirection: 'row' }}
           onClick={() => select('voice.oscSync')}
-          title="Sync 1-2 LED. Turn sync on or off with Function + upper D."
+          title={t('Sync 1-2 LED. Turn sync on or off with Function + upper D.')}
         >
           <span className={[styles.led, syncOn && styles.ledOn].filter(Boolean).join(' ')} />
           Sync 1-2
@@ -324,7 +329,7 @@ export function HardwarePanel() {
               .filter(Boolean)
               .join(' ')}
             aria-pressed={ui.transposeArmed}
-            title="Transpose: activate, then press a key (relative to middle C)"
+            title={t('Transpose: activate, then press a key (relative to middle C)')}
             onClick={ui.toggleTranspose}
           >
             Transpose
@@ -337,7 +342,9 @@ export function HardwarePanel() {
               .filter(Boolean)
               .join(' ')}
             aria-pressed={ui.functionActive}
-            title="Function/Exit: activate, then press a key for its On-Key function. Press the key again for extended functions."
+            title={t(
+              'Function/Exit: activate, then press a key for its On-Key function. Press the key again for extended functions.',
+            )}
             onClick={ui.toggleFunction}
           >
             Function
@@ -353,8 +360,8 @@ export function HardwarePanel() {
               key={dir}
               type="button"
               className={`${styles.hwButton} ${styles.arrowButton}`}
-              aria-label={dir < 0 ? 'Octave down' : 'Octave up'}
-              title="Octave shift. Alt-click resets (on the hardware: press both buttons)."
+              aria-label={dir < 0 ? t('Octave down') : t('Octave up')}
+              title={t('Octave shift. Alt-click resets (on the hardware: press both buttons).')}
               disabled={(dir < 0 && octave <= -4) || (dir > 0 && octave >= 5)}
               onClick={(e) => changeOctave(dir, e.altKey)}
             >

@@ -18,6 +18,7 @@ import { useMidiStore } from '@/stores/midiStore';
 import { useSynthStore } from '@/stores/synthStore';
 import { effectiveVerification } from '@/engine/midi/verification';
 import styles from './ParameterInspector.module.css';
+import { t } from '@/i18n/t';
 
 const VERIFICATION_TONE: Record<MidiVerification, BadgeTone> = {
   'both-verified': 'success',
@@ -43,10 +44,11 @@ export function ParameterInspector() {
 
   if (!def) {
     return (
-      <aside className={styles.inspector} aria-label="Parameter inspector">
+      <aside className={styles.inspector} aria-label={t('Parameter inspector')}>
         <p className={styles.empty}>
-          Select a parameter or control to see what it does, how to experiment with it and how it
-          maps to MIDI.
+          {t(
+            'Select a parameter or control to see what it does, how to experiment with it and how it maps to MIDI.',
+          )}
         </p>
       </aside>
     );
@@ -63,14 +65,14 @@ export function ParameterInspector() {
   );
 
   return (
-    <aside className={styles.inspector} aria-label="Parameter inspector">
+    <aside className={styles.inspector} aria-label={t('Parameter inspector')}>
       <div className={styles.head}>
         <div className={styles.meta}>
           <span>{getSection(def.section).name}</span>
           <span>·</span>
           <span>{describeAccess(def)}</span>
           <span>·</span>
-          <span>{SCOPE_LABEL[def.scope]}</span>
+          <span>{t(SCOPE_LABEL[def.scope])}</span>
         </div>
         <h2 className={styles.name}>{def.name}</h2>
         <p className={styles.description}>{def.description}</p>
@@ -81,22 +83,22 @@ export function ParameterInspector() {
           <ParameterEditor id={def.id} />
           <div>
             <Button size="sm" variant="ghost" onClick={() => setValue(def.id, def.defaultValue)}>
-              Reset to {formatValue(def, def.defaultValue)}
-              {def.defaultInferred ? ' (app default)' : ' (Init Patch)'}
+              {t('Reset to {value}', { value: formatValue(def, def.defaultValue) })}
+              {def.defaultInferred ? t(' (app default)') : t(' (Init Patch)')}
             </Button>
           </div>
         </section>
 
         <section className={styles.block}>
-          <h3 className={styles.blockTitle}>What it does</h3>
+          <h3 className={styles.blockTitle}>{t('What it does')}</h3>
           <p>{edu.explanation}</p>
           <div className={styles.direction}>
             <p className={styles.directionItem}>
-              <span className={styles.directionLabel}>Increase</span>
+              <span className={styles.directionLabel}>{t('Increase')}</span>
               {edu.increase}
             </p>
             <p className={styles.directionItem}>
-              <span className={styles.directionLabel}>Decrease</span>
+              <span className={styles.directionLabel}>{t('Decrease')}</span>
               {edu.decrease}
             </p>
           </div>
@@ -104,14 +106,14 @@ export function ParameterInspector() {
 
         {edu.experiment && (
           <section className={styles.block}>
-            <h3 className={styles.blockTitle}>Try this</h3>
+            <h3 className={styles.blockTitle}>{t('Try this')}</h3>
             <p className={styles.experiment}>{edu.experiment}</p>
           </section>
         )}
 
         {def.concepts.length > 0 && (
           <section className={styles.block}>
-            <h3 className={styles.blockTitle}>Concepts</h3>
+            <h3 className={styles.blockTitle}>{t('Concepts')}</h3>
             <div className={styles.chips}>
               {def.concepts.map((c) => {
                 const concept = findConcept(c);
@@ -131,7 +133,7 @@ export function ParameterInspector() {
 
         {def.related.length > 0 && (
           <section className={styles.block}>
-            <h3 className={styles.blockTitle}>Works together with</h3>
+            <h3 className={styles.blockTitle}>{t('Works together with')}</h3>
             <div className={styles.chips}>
               {def.related.map((id) => {
                 const rel = findParameter(id);
@@ -147,14 +149,14 @@ export function ParameterInspector() {
 
         {(panelControls.length > 0 || lessons.length > 0) && (
           <section className={styles.block}>
-            <h3 className={styles.blockTitle}>On the panel &amp; in lessons</h3>
+            <h3 className={styles.blockTitle}>{t('On the panel & in lessons')}</h3>
             {panelControls.length > 0 && (
               <p className={styles.note}>
-                Panel:{' '}
+                {t('Panel:')}{' '}
                 {panelControls
                   .map(
                     (c) =>
-                      `${c.label}${c.callout ? ` (callout ${c.callout})` : ''}${c.functionTarget && allControlTargetsWithFunction({ ...c, target: null }).includes(def.id) ? ' with Function held' : ''}`,
+                      `${c.label}${c.callout ? t(' (callout {n})', { n: c.callout }) : ''}${c.functionTarget && allControlTargetsWithFunction({ ...c, target: null }).includes(def.id) ? t(' with Function held') : ''}`,
                   )
                   .join(', ')}
               </p>
@@ -164,7 +166,7 @@ export function ParameterInspector() {
                 {lessons.map((l) => (
                   <li key={`${l.chapter.id}/${l.id}`}>
                     <Link to={`/learn/${l.chapter.id}/${l.id}`}>
-                      Chapter {l.chapter.number} · {l.title}
+                      {t('Chapter {n} · {title}', { n: l.chapter.number, title: l.title })}
                     </Link>
                   </li>
                 ))}
@@ -174,51 +176,51 @@ export function ParameterInspector() {
         )}
 
         <section className={styles.block}>
-          <h3 className={styles.blockTitle}>Reference</h3>
+          <h3 className={styles.blockTitle}>{t('Reference')}</h3>
           <dl className={styles.dl}>
             {def.kind === 'continuous' && (
               <>
-                <dt>Range</dt>
+                <dt>{t('Range')}</dt>
                 <dd className="mono">
                   {formatValue(def, def.min)} … {formatValue(def, def.max)}
-                  {def.rangeSource === 'inferred' && ' (inferred)'}
+                  {def.rangeSource === 'inferred' && t(' (inferred)')}
                 </dd>
               </>
             )}
             {def.kind === 'enum' && (
               <>
-                <dt>Options</dt>
+                <dt>{t('Options')}</dt>
                 <dd>
                   {def.options.length <= 8
                     ? def.options.map((o) => o.label).join(', ')
-                    : `${def.options.length} values`}
+                    : t('{n} values', { n: def.options.length })}
                 </dd>
               </>
             )}
-            <dt>Default</dt>
+            <dt>{t('Default')}</dt>
             <dd className="mono">{formatValue(def, def.defaultValue)}</dd>
             <dt>MIDI</dt>
             <dd className="mono">{describeMidiMapping(midi.mapping)}</dd>
             {midi.documentedRange && (
               <>
-                <dt>Manual range</dt>
+                <dt>{t('Manual range')}</dt>
                 <dd className="mono">{midi.documentedRange}</dd>
               </>
             )}
-            <dt>Status</dt>
+            <dt>{t('Status')}</dt>
             <dd>
               {(() => {
                 const eff = effectiveVerification(def, local);
                 return (
                   <Badge tone={VERIFICATION_TONE[eff.status]} dot>
-                    {VERIFICATION_LABELS[eff.status]}
-                    {eff.local ? ' (your device)' : ''}
+                    {t(VERIFICATION_LABELS[eff.status])}
+                    {eff.local ? t(' (your device)') : ''}
                   </Badge>
                 );
               })()}
             </dd>
-            <dt>Source</dt>
-            <dd>User guide v5.0, p. {def.source.page}</dd>
+            <dt>{t('Source')}</dt>
+            <dd>{t('User guide v5.0, p. {page}', { page: def.source.page })}</dd>
           </dl>
           {midi.notes && <p className={styles.note}>{midi.notes}</p>}
         </section>

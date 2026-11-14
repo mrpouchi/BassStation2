@@ -9,6 +9,7 @@ import { useHardwareUiStore } from '@/stores/hardwareUiStore';
 import { clamp, linear, linePath, logScale } from './svg';
 import { VizFrame } from './VizFrame';
 import s from './VizFrame.module.css';
+import { t } from '@/i18n/t';
 
 const IDS = [
   'filter.type',
@@ -86,11 +87,11 @@ export function FilterVisualizer() {
 
   return (
     <VizFrame
-      title="Filter response"
+      title={t('Filter response')}
       readout={
         <>
           <span>
-            Type{' '}
+            {t('Type')}{' '}
             <strong>
               {acid
                 ? 'Acid (LP 24)'
@@ -98,20 +99,24 @@ export function FilterVisualizer() {
             </strong>
           </span>
           <span>
-            Cutoff <strong>≈ {fc < 1000 ? fc.toFixed(0) : (fc / 1000).toFixed(1) + 'k'} Hz</strong>
+            {t('Cutoff')}{' '}
+            <strong>≈ {fc < 1000 ? fc.toFixed(0) : (fc / 1000).toFixed(1) + 'k'} Hz</strong>
           </span>
           <span>
-            Peak <strong>{(Math.max(...curve) + 0).toFixed(1).replace('-0.0', '0.0')} dB</strong>
+            {t('Peak')}{' '}
+            <strong>{(Math.max(...curve) + 0).toFixed(1).replace('-0.0', '0.0')} dB</strong>
           </span>
         </>
       }
-      caption="Line: idealised filter curve. Bars: harmonics of the oscillators mixed in, grey before the filter and coloured after it. The cutoff and resonance-to-Hz mappings are illustrative. The manual does not publish them."
+      caption={t(
+        'Line: idealised filter curve. Bars: harmonics of the oscillators mixed in, grey before the filter and coloured after it. The cutoff and resonance-to-Hz mappings are illustrative. The manual does not publish them.',
+      )}
     >
       <svg
         viewBox={`0 0 ${W} ${H}`}
         className={s.svg}
         role="img"
-        aria-label="Filter frequency response"
+        aria-label={t('Filter frequency response')}
       >
         {[100, 1000, 10000].map((f) => (
           <g key={f}>

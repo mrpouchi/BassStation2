@@ -13,12 +13,13 @@ import { usePresetStore } from '@/stores/presetStore';
 import { useProgressStore } from '@/stores/progressStore';
 import { selectInputConnected, selectOutputConnected, useMidiStore } from '@/stores/midiStore';
 import styles from './DashboardPage.module.css';
+import { t } from '@/i18n/t';
 
 function relative(at: number): string {
   const s = Math.round((Date.now() - at) / 1000);
-  if (s < 60) return 'just now';
-  if (s < 3600) return `${Math.round(s / 60)} min ago`;
-  if (s < 86400) return `${Math.round(s / 3600)} h ago`;
+  if (s < 60) return t('just now');
+  if (s < 3600) return t('{n} min ago', { n: Math.round(s / 60) });
+  if (s < 86400) return t('{n} h ago', { n: Math.round(s / 3600) });
   return new Date(at).toLocaleDateString();
 }
 
@@ -47,31 +48,31 @@ export function DashboardPage() {
   const recommendation = (() => {
     if (next && done === 0)
       return {
-        title: `Start with ${next.outline.title}`,
-        detail: 'Lesson 1.1: what frequency is and how pitch works.',
+        title: t('Start with {title}', { title: next.outline.title }),
+        detail: t('Lesson 1.1: what frequency is and how pitch works.'),
         to: `/learn/${next.key}`,
       };
     if (nextChallenge && done >= 3 && solved < Math.floor(done / 3))
       return {
-        title: `Try the challenge “${nextChallenge.title}”`,
-        detail: 'Practice what you have learned so far.',
+        title: t('Try the challenge “{title}”', { title: nextChallenge.title }),
+        detail: t('Practice what you have learned so far.'),
         to: `/challenges/${nextChallenge.id}`,
       };
     if (next)
       return {
-        title: `Continue: ${next.outline.title}`,
-        detail: `Chapter ${next.chapter.number} · ${next.chapter.title}`,
+        title: t('Continue: {title}', { title: next.outline.title }),
+        detail: t('Chapter {n} · {title}', { n: next.chapter.number, title: next.chapter.title }),
         to: `/learn/${next.key}`,
       };
     if (nextChallenge)
       return {
-        title: `Challenge: ${nextChallenge.title}`,
-        detail: 'All lessons done. Keep practising.',
+        title: t('Challenge: {title}', { title: nextChallenge.title }),
+        detail: t('All lessons done. Keep practising.'),
         to: `/challenges/${nextChallenge.id}`,
       };
     return {
-      title: 'Design something new',
-      detail: 'Every lesson and challenge is complete.',
+      title: t('Design something new'),
+      detail: t('Every lesson and challenge is complete.'),
       to: '/synth-lab',
     };
   })();
@@ -79,17 +80,19 @@ export function DashboardPage() {
   return (
     <>
       <PageHeader
-        eyebrow="Dashboard"
-        title="Welcome to Bass Station Academy"
-        description="Learn subtractive synthesis by exploring the Novation Bass Station II: in the browser first, then on the real instrument."
+        eyebrow={t('Dashboard')}
+        title={t('Welcome to Bass Station Academy')}
+        description={t(
+          'Learn subtractive synthesis by exploring the Novation Bass Station II: in the browser first, then on the real instrument.',
+        )}
       />
       <div className={styles.grid}>
         <Card
           className={styles.wide}
-          title="Recommended next"
+          title={t('Recommended next')}
           actions={
             <ButtonLink to={recommendation.to} variant="primary" size="sm">
-              Go
+              {t('Go')}
             </ButtonLink>
           }
         >
@@ -102,22 +105,22 @@ export function DashboardPage() {
               <span className={`${styles.statValue} mono`}>
                 {done}/{total}
               </span>
-              <span className={styles.statLabel}>lessons completed</span>
+              <span className={styles.statLabel}>{t('lessons completed')}</span>
             </div>
             <div className={styles.stat}>
               <span className={`${styles.statValue} mono`}>
                 {solved}/{CHALLENGES.length}
               </span>
-              <span className={styles.statLabel}>challenges solved</span>
+              <span className={styles.statLabel}>{t('challenges solved')}</span>
             </div>
             <div className={styles.stat}>
               <span className={`${styles.statValue} mono`}>{presets.length}</span>
-              <span className={styles.statLabel}>saved presets</span>
+              <span className={styles.statLabel}>{t('saved presets')}</span>
             </div>
           </div>
           <div
             className={styles.progress}
-            aria-label={`Overall progress ${Math.round((done / total) * 100)}%`}
+            aria-label={t('Overall progress {pct}%', { pct: Math.round((done / total) * 100) })}
           >
             <div className={styles.progressBar} style={{ width: `${(done / total) * 100}%` }} />
           </div>
@@ -125,10 +128,10 @@ export function DashboardPage() {
 
         <Card
           className={styles.narrow}
-          title="Hardware"
+          title={t('Hardware')}
           actions={
             <Link to="/hardware" className={styles.link}>
-              Manage
+              {t('Manage')}
             </Link>
           }
         >
@@ -144,34 +147,41 @@ export function DashboardPage() {
               dot
             >
               {connected
-                ? 'Bass Station II connected'
+                ? t('Bass Station II connected')
                 : midi.status === 'unsupported'
-                  ? 'Web MIDI unsupported'
+                  ? t('Web MIDI unsupported')
                   : midi.status === 'insecure'
-                    ? 'MIDI needs HTTPS'
+                    ? t('MIDI needs HTTPS')
                     : midi.status === 'ready'
-                      ? 'No device connected'
-                      : 'Not connected'}
+                      ? t('No device connected')
+                      : t('Not connected')}
             </Badge>
           </div>
           <p className={styles.muted}>
             {connected
-              ? `Receiving ${midi.receive ? 'on' : 'off'} · sending ${midi.send ? 'on' : 'off'}.`
-              : 'Everything works without hardware. Connect a Bass Station II by USB to sync it with the virtual panel.'}
+              ? t('Receiving {r} · sending {s}.', {
+                  r: midi.receive ? t('on') : t('off'),
+                  s: midi.send ? t('on') : t('off'),
+                })
+              : t(
+                  'Everything works without hardware. Connect a Bass Station II by USB to sync it with the virtual panel.',
+                )}
           </p>
           <p className={styles.muted}>
-            {stats.midiDocumented} documented MIDI mappings, {Object.keys(midi.verification).length}{' '}
-            tested on your device.
+            {t('{n} documented MIDI mappings, {m} tested on your device.', {
+              n: stats.midiDocumented,
+              m: Object.keys(midi.verification).length,
+            })}
           </p>
         </Card>
 
         <Card
           className={styles.half}
-          title="Current chapter"
+          title={t('Current chapter')}
           actions={
             chapter ? (
               <Link to="/learn" className={styles.link}>
-                Curriculum
+                {t('Curriculum')}
               </Link>
             ) : undefined
           }
@@ -182,7 +192,10 @@ export function DashboardPage() {
                 {chapter.number}. {chapter.title}
               </p>
               <p className={styles.muted}>
-                {chapterDone} of {chapter.lessons.length} lessons completed
+                {t('{done} of {total} lessons completed', {
+                  done: chapterDone,
+                  total: chapter.lessons.length,
+                })}
               </p>
               <ul className={styles.list}>
                 {chapter.lessons.map((l) => {
@@ -193,9 +206,9 @@ export function DashboardPage() {
                         {l.title}
                       </Link>
                       {progress.lessons[key] ? (
-                        <Badge tone="success">Done</Badge>
+                        <Badge tone="success">{t('Done')}</Badge>
                       ) : key === progress.lastLesson ? (
-                        <Badge tone="accent">Last opened</Badge>
+                        <Badge tone="accent">{t('Last opened')}</Badge>
                       ) : null}
                     </li>
                   );
@@ -203,14 +216,14 @@ export function DashboardPage() {
               </ul>
             </>
           ) : (
-            <p className={styles.muted}>Every chapter is complete.</p>
+            <p className={styles.muted}>{t('Every chapter is complete.')}</p>
           )}
         </Card>
 
-        <Card className={styles.half} title="Recent exercises">
+        <Card className={styles.half} title={t('Recent exercises')}>
           {progress.activity.length === 0 ? (
             <p className={styles.muted}>
-              Lesson exercises and challenges you check will appear here.
+              {t('Lesson exercises and challenges you check will appear here.')}
             </p>
           ) : (
             <ul className={styles.list}>
@@ -223,11 +236,11 @@ export function DashboardPage() {
                 return (
                   <li key={`${a.key}-${a.at}-${i}`}>
                     <Link to={to} className={styles.link}>
-                      {a.kind === 'lesson' ? 'Lesson' : 'Challenge'}: {title}
+                      {a.kind === 'lesson' ? t('Lesson') : t('Challenge')}: {title}
                     </Link>
                     <span className={styles.muted}>
                       <Badge tone={a.passed ? 'success' : 'warning'}>
-                        {a.passed ? 'Passed' : 'Retry'}
+                        {a.passed ? t('Passed') : t('Retry')}
                       </Badge>{' '}
                       {relative(a.at)}
                     </span>
@@ -240,16 +253,16 @@ export function DashboardPage() {
 
         <Card
           className={styles.half}
-          title="Recently saved presets"
+          title={t('Recently saved presets')}
           actions={
             <Link to="/library" className={styles.link}>
-              Library
+              {t('Library')}
             </Link>
           }
         >
           {recentPresets.length === 0 ? (
             <p className={styles.muted}>
-              No presets yet. Design a sound in Synth Lab and save it in the Sound Library.
+              {t('No presets yet. Design a sound in Synth Lab and save it in the Sound Library.')}
             </p>
           ) : (
             <ul className={styles.list}>
@@ -257,7 +270,7 @@ export function DashboardPage() {
                 <li key={p.id}>
                   <span>{p.name}</span>
                   <span className={styles.muted}>
-                    <Badge>{CATEGORY_LABELS[p.category]}</Badge> {relative(p.updatedAt)}
+                    <Badge>{t(CATEGORY_LABELS[p.category])}</Badge> {relative(p.updatedAt)}
                   </span>
                 </li>
               ))}
@@ -265,28 +278,30 @@ export function DashboardPage() {
           )}
         </Card>
 
-        <Card className={styles.half} title="The instrument in the Academy">
+        <Card className={styles.half} title={t('The instrument in the Academy')}>
           <div className={styles.stats}>
             <div className={styles.stat}>
               <span className={`${styles.statValue} mono`}>{stats.parameters}</span>
-              <span className={styles.statLabel}>parameters</span>
+              <span className={styles.statLabel}>{t('parameters')}</span>
             </div>
             <div className={styles.stat}>
               <span className={`${styles.statValue} mono`}>{stats.controls}</span>
-              <span className={styles.statLabel}>panel controls</span>
+              <span className={styles.statLabel}>{t('panel controls')}</span>
             </div>
             <div className={styles.stat}>
               <span className={`${styles.statValue} mono`}>{stats.onKey}</span>
-              <span className={styles.statLabel}>On-Key functions</span>
+              <span className={styles.statLabel}>{t('On-Key functions')}</span>
             </div>
           </div>
           <p className={styles.muted}>
-            Local storage:{' '}
+            {t('Local storage:')}{' '}
             {persistence.status === 'ready'
-              ? 'progress, presets and settings are saved on this device.'
+              ? t('progress, presets and settings are saved on this device.')
               : persistence.status === 'loading'
-                ? 'loading…'
-                : `unavailable (${persistence.error ?? 'unknown error'}). Changes will not be kept.`}
+                ? t('loading…')
+                : t('unavailable ({error}). Changes will not be kept.', {
+                    error: persistence.error ?? t('unknown error'),
+                  })}
           </p>
         </Card>
       </div>

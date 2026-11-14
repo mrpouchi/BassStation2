@@ -15,6 +15,7 @@ import { ParameterInspector } from '@/features/synth-lab/ParameterInspector';
 import { useProgressStore } from '@/stores/progressStore';
 import { useSynthStore } from '@/stores/synthStore';
 import styles from './LessonPage.module.css';
+import { t } from '@/i18n/t';
 
 export function LessonPage() {
   const { chapterId = '', lessonId = '' } = useParams();
@@ -42,10 +43,10 @@ export function LessonPage() {
   if (!lesson || !ref || !demoValues) {
     return (
       <EmptyState
-        title="Lesson not found"
-        actions={<ButtonLink to="/learn">Back to the curriculum</ButtonLink>}
+        title={t('Lesson not found')}
+        actions={<ButtonLink to="/learn">{t('Back to the curriculum')}</ButtonLink>}
       >
-        This lesson does not exist.
+        {t('This lesson does not exist.')}
       </EmptyState>
     );
   }
@@ -57,17 +58,21 @@ export function LessonPage() {
   return (
     <>
       <PageHeader
-        eyebrow={`Chapter ${ref.chapter.number} · ${ref.chapter.title} · Lesson ${position}`}
+        eyebrow={t('Chapter {n} · {title} · Lesson {position}', {
+          n: ref.chapter.number,
+          title: ref.chapter.title,
+          position,
+        })}
         title={ref.outline.title}
-        actions={completed ? <Badge tone="success">Completed</Badge> : undefined}
+        actions={completed ? <Badge tone="success">{t('Completed')}</Badge> : undefined}
       />
       <div className={styles.layout}>
         <div className={styles.sections}>
-          <Card title="Objective" actions={<span className={styles.stepNum}>1</span>}>
+          <Card title={t('Objective')} actions={<span className={styles.stepNum}>1</span>}>
             <p className={styles.objective}>{lesson.objective}</p>
           </Card>
 
-          <Card title="Explanation" actions={<span className={styles.stepNum}>2</span>}>
+          <Card title={t('Explanation')} actions={<span className={styles.stepNum}>2</span>}>
             <div className={styles.paragraphs}>
               {lesson.explanation.map((p, i) => (
                 <p key={i}>{p}</p>
@@ -76,8 +81,8 @@ export function LessonPage() {
           </Card>
 
           <Card
-            title="Demonstration"
-            subtitle="A fixed example. It does not change your settings."
+            title={t('Demonstration')}
+            subtitle={t('A fixed example. It does not change your settings.')}
             actions={<span className={styles.stepNum}>3</span>}
           >
             <ValuesOverrideContext.Provider value={demoValues}>
@@ -87,8 +92,8 @@ export function LessonPage() {
           </Card>
 
           <Card
-            title="Experiment"
-            subtitle="These controls edit your live Synth Lab state."
+            title={t('Experiment')}
+            subtitle={t('These controls edit your live Synth Lab state.')}
             actions={<span className={styles.stepNum}>4</span>}
           >
             <ol className={styles.steps}>
@@ -100,12 +105,14 @@ export function LessonPage() {
               <Button
                 size="sm"
                 onClick={loadStart}
-                title="Replaces your current settings with the Init Patch plus this lesson's starting values"
+                title={t(
+                  "Replaces your current settings with the Init Patch plus this lesson's starting values",
+                )}
               >
-                Load lesson starting point
+                {t('Load lesson starting point')}
               </Button>
               <ButtonLink size="sm" variant="ghost" to="/synth-lab">
-                Open the Hardware View
+                {t('Open the Hardware View')}
               </ButtonLink>
             </div>
             <div className={styles.editors}>
@@ -122,8 +129,8 @@ export function LessonPage() {
           </Card>
 
           <Card
-            title="Exercise"
-            subtitle="Checked against your current settings."
+            title={t('Exercise')}
+            subtitle={t('Checked against your current settings.')}
             actions={<span className={styles.stepNum}>5–6</span>}
           >
             <TaskPanel
@@ -134,14 +141,14 @@ export function LessonPage() {
             />
           </Card>
 
-          <nav className={styles.nav} aria-label="Lesson navigation">
+          <nav className={styles.nav} aria-label={t('Lesson navigation')}>
             {prev ? (
               <ButtonLink to={`/learn/${prev.key}`}>← {prev.outline.title}</ButtonLink>
             ) : (
               <span />
             )}
             <Link to="/learn" className={styles.muted}>
-              All lessons
+              {t('All lessons')}
             </Link>
             {next ? (
               <ButtonLink to={`/learn/${next.key}`} variant={completed ? 'primary' : 'secondary'}>

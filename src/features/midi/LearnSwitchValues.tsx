@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/Button';
 import { findParameter } from '@/engine/parameters/registry';
 import { useMidiStore } from '@/stores/midiStore';
 import styles from './LearnSwitchValues.module.css';
+import { t } from '@/i18n/t';
 
 /**
  * Lets the user teach the app what a switch value from their synth means.
@@ -16,16 +17,17 @@ export function UnknownValuePrompts({ limit = 3 }: { limit?: number }) {
   if (shown.length === 0) return null;
 
   return (
-    <div className={styles.prompts} role="region" aria-label="Unrecognised MIDI values">
+    <div className={styles.prompts} role="region" aria-label={t('Unrecognised MIDI values')}>
       {shown.map((u) => {
         const def = findParameter(u.id);
         if (!def || def.kind !== 'enum') return null;
         return (
           <div key={`${u.id}-${u.raw}`} className={styles.prompt}>
             <p>
-              Your synth sent <strong className="mono">{u.raw}</strong> for{' '}
-              <strong>{def.name}</strong>, a value the manual does not document. Which position is
-              the switch in?
+              {t(
+                'Your synth sent {raw} for {name}, a value the manual does not document. Which position is the switch in?',
+                { raw: u.raw, name: def.name },
+              )}
             </p>
             <div className={styles.options}>
               {def.options.map((o) => (
@@ -44,7 +46,7 @@ export function UnknownValuePrompts({ limit = 3 }: { limit?: number }) {
                   })
                 }
               >
-                Ignore
+                {t('Ignore')}
               </Button>
             </div>
           </div>
@@ -64,8 +66,9 @@ export function LearnedValuesList() {
       <UnknownValuePrompts limit={8} />
       {entries.length === 0 ? (
         <p className={styles.muted}>
-          Nothing taught yet. When the synth sends a switch value the app does not recognise, it
-          asks you here (and in the Synth Lab) which position it means.
+          {t(
+            'Nothing taught yet. When the synth sends a switch value the app does not recognise, it asks you here (and in the Synth Lab) which position it means.',
+          )}
         </p>
       ) : (
         <ul className={styles.list}>
@@ -83,7 +86,7 @@ export function LearnedValuesList() {
                     .join(', ')}
                 </span>
                 <Button size="sm" variant="ghost" onClick={() => forget(id)}>
-                  Forget
+                  {t('Forget')}
                 </Button>
               </li>
             );

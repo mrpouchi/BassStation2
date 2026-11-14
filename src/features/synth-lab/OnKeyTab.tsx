@@ -2,6 +2,7 @@ import { ON_KEY_LAYOUT } from '@/data/synthesizer/onKeyLayout';
 import { formatValue, parametersOnKey } from '@/engine/parameters/registry';
 import { useSynthStore } from '@/stores/synthStore';
 import styles from './SynthLabPage.module.css';
+import { t } from '@/i18n/t';
 
 export function OnKeyTab() {
   const values = useSynthStore((s) => s.values);
@@ -10,9 +11,9 @@ export function OnKeyTab() {
   return (
     <>
       <p className={styles.notice}>
-        Hold <strong>Function/Exit</strong> and press a key to edit its function with the
-        Patch/Value buttons. Pressing the same key again reaches extended functions (shown as 2×,
-        3×, 4×).
+        {t(
+          'Hold Function/Exit and press a key to edit its function with the Patch/Value buttons. Pressing the same key again reaches extended functions (shown as 2×, 3×, 4×).',
+        )}
       </p>
       <div className={styles.keys}>
         {ON_KEY_LAYOUT.map((entry) => {
@@ -26,12 +27,12 @@ export function OnKeyTab() {
             >
               <div className={styles.keyHead}>
                 <span>{entry.key}</span>
-                <span>{entry.group}</span>
+                <span>{t(entry.group)}</span>
               </div>
               <span className={styles.keyLabel}>{entry.label}</span>
               {entry.action && (
                 <span className={styles.keyAction}>
-                  Sends the current patch (or all 128) as SysEx. This is a hardware action.
+                  {t('Sends the current patch (or all 128) as SysEx. This is a hardware action.')}
                 </span>
               )}
               {params.map((p) => {

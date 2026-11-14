@@ -4,6 +4,7 @@ import { findParameter, formatValue, resolveControlTarget } from '@/engine/param
 import type { ControlType } from '@/engine/parameters/types';
 import { useSynthStore } from '@/stores/synthStore';
 import styles from './SynthLabPage.module.css';
+import { t } from '@/i18n/t';
 
 const TYPE_LABEL: Record<ControlType, string> = {
   knob: 'Knob',
@@ -30,8 +31,9 @@ export function ControlsTab() {
   return (
     <>
       <p className={styles.notice}>
-        Every element of the top panel and keyboard area, numbered as in the manual’s hardware
-        overview. Shared controls show the parameter they edit with the current switch positions.
+        {t(
+          'Every element of the top panel and keyboard area, numbered as in the manual’s hardware overview. Shared controls show the parameter they edit with the current switch positions.',
+        )}
       </p>
       {SECTIONS.map((s) => {
         const controls = CONTROLS.filter((c) => c.section === s.id);
@@ -52,17 +54,19 @@ export function ControlsTab() {
                       onClick={() => first && select(first)}
                     >
                       <span className={styles.controlName}>
-                        <span className={styles.calloutCell} title="Manual callout number">
+                        <span className={styles.calloutCell} title={t('Manual callout number')}>
                           {c.callout ?? '–'}
                         </span>
                         <span className={styles.rowName}>
                           {c.label}
                           {c.secondary && (
-                            <span className={styles.rowSub}>Also: {c.secondary.label}</span>
+                            <span className={styles.rowSub}>
+                              {t('Also: {label}', { label: c.secondary.label })}
+                            </span>
                           )}
                         </span>
                       </span>
-                      <span className={styles.rowMidi}>{TYPE_LABEL[c.type]}</span>
+                      <span className={styles.rowMidi}>{t(TYPE_LABEL[c.type])}</span>
                       <span className={styles.rowValue}>
                         {targets.length === 0 ? (
                           <span className={styles.rowSub}>{c.description}</span>
