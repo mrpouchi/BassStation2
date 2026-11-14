@@ -14,7 +14,9 @@ import {
   formatValue,
 } from '@/engine/parameters/registry';
 import type { MidiVerification } from '@/engine/parameters/types';
+import { useMidiStore } from '@/stores/midiStore';
 import { useSynthStore } from '@/stores/synthStore';
+import { effectiveVerification } from '@/engine/midi/verification';
 import styles from './ParameterInspector.module.css';
 
 const VERIFICATION_TONE: Record<MidiVerification, BadgeTone> = {
@@ -37,6 +39,7 @@ export function ParameterInspector() {
   const select = useSynthStore((s) => s.select);
   const setValue = useSynthStore((s) => s.setValue);
   const def = selectedId ? findParameter(selectedId) : undefined;
+  const local = useMidiStore((s) => (selectedId ? s.verification[selectedId] : undefined));
 
   if (!def) {
     return (
@@ -204,9 +207,15 @@ export function ParameterInspector() {
             )}
             <dt>Status</dt>
             <dd>
-              <Badge tone={VERIFICATION_TONE[midi.verification]} dot>
-                {VERIFICATION_LABELS[midi.verification]}
-              </Badge>
+              {(() => {
+                const eff = effectiveVerification(def, local);
+                return (
+                  <Badge tone={VERIFICATION_TONE[eff.status]} dot>
+                    {VERIFICATION_LABELS[eff.status]}
+                    {eff.local ? ' (your device)' : ''}
+                  </Badge>
+                );
+              })()}
             </dd>
             <dt>Source</dt>
             <dd>User guide v5.0, p. {def.source.page}</dd>

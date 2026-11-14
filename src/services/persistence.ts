@@ -1,5 +1,6 @@
 import { isThemePreference, usePreferencesStore } from '@/stores/preferencesStore';
 import { usePersistenceStore } from '@/stores/persistenceStore';
+import { parseMidiSettings, useMidiStore, type StoredMidiSettings } from '@/stores/midiStore';
 import { parseProgress, serializeProgress, useProgressStore } from '@/stores/progressStore';
 import { useSynthStore } from '@/stores/synthStore';
 import { readKey, writeKey } from './storage/db';
@@ -23,11 +24,22 @@ function isStoredPanelState(v: unknown): v is StoredPanelState {
 export async function initPersistence(): Promise<void> {
   const status = usePersistenceStore.getState();
   try {
-    const [theme, panel, progress] = await Promise.all([
+    const [theme, panel, progress, midi] = await Promise.all([
       readKey('preferences', 'theme'),
       readKey('session', 'panel'),
       readKey('progress', 'v1'),
+      readKey('preferences', 'midi'),
     ]);
+    const midiSettings = parseMidiSettings(midi);
+    if (midiSettings) {
+      useMidiStore.getState().set({
+        receive: midiSettings.receive,
+        send: midiSettings.send,
+        preferredInputName: midiSettings.preferredInputName,
+        preferredOutputName: midiSettings.preferredOutputName,
+        verification: midiSettings.verification,
+      });
+    }
     const parsedProgress = parseProgress(progress);
     if (parsedProgress) useProgressStore.getState().load(parsedProgress);
     if (isThemePreference(theme)) usePreferencesStore.getState().setTheme(theme);
@@ -43,6 +55,26 @@ export async function initPersistence(): Promise<void> {
 
   usePreferencesStore.subscribe((s, prev) => {
     if (s.theme !== prev.theme) void writeKey('preferences', 'theme', s.theme).catch(reportError);
+  });
+
+  useMidiStore.subscribe((s, prev) => {
+    if (
+      s.receive === prev.receive &&
+      s.send === prev.send &&
+      s.preferredInputName === prev.preferredInputName &&
+      s.preferredOutputName === prev.preferredOutputName &&
+      s.verification === prev.verification
+    )
+      return;
+    const payload: StoredMidiSettings = {
+      format: 1,
+      receive: s.receive,
+      send: s.send,
+      preferredInputName: s.preferredInputName,
+      preferredOutputName: s.preferredOutputName,
+      verification: s.verification,
+    };
+    void writeKey('preferences', 'midi', payload).catch(reportError);
   });
 
   useProgressStore.subscribe((s) => {
