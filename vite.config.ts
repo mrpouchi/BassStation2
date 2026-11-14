@@ -11,6 +11,17 @@ export default defineConfig({
   css: {
     modules: { localsConvention: 'camelCaseOnly' },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        // Vendor code changes rarely; keep it in its own long-cached chunk.
+        manualChunks: {
+          react: ['react', 'react-dom', 'react-router-dom'],
+          state: ['zustand', 'idb'],
+        },
+      },
+    },
+  },
   test: {
     globals: true,
     environment: 'jsdom',

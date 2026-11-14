@@ -59,6 +59,14 @@ export async function writeKey(store: StoreName, key: string, value: unknown): P
   await (await getDb()).put(store, value, key);
 }
 
+export async function deleteKey(store: StoreName, key: string): Promise<void> {
+  await (await getDb()).delete(store, key);
+}
+
+export async function readAll(store: StoreName): Promise<unknown[]> {
+  return (await getDb()).getAll(store);
+}
+
 /** Test helper: forget the cached connection. */
 export function resetDbConnectionForTests(): void {
   dbPromise = null;

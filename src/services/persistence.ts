@@ -3,6 +3,7 @@ import { usePersistenceStore } from '@/stores/persistenceStore';
 import { parseMidiSettings, useMidiStore, type StoredMidiSettings } from '@/stores/midiStore';
 import { parseProgress, serializeProgress, useProgressStore } from '@/stores/progressStore';
 import { useSynthStore } from '@/stores/synthStore';
+import { loadPresets } from './presetRepository';
 import { readKey, writeKey } from './storage/db';
 
 const SAVE_DELAY_MS = 400;
@@ -47,6 +48,7 @@ export async function initPersistence(): Promise<void> {
       const rejected = useSynthStore.getState().replaceValues(panel.values, 'system');
       if (rejected.length > 0) console.warn('Ignored invalid stored parameters:', rejected);
     }
+    await loadPresets();
     status.setStatus('ready');
   } catch (error) {
     status.setStatus('unavailable', error instanceof Error ? error.message : String(error));
