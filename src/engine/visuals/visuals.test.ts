@@ -144,3 +144,37 @@ describe('LFO sampler', () => {
     expect(maxStep(slewed)).toBeLessThan(maxStep(sharp));
   });
 });
+
+import { arpSequence } from './arp';
+import { glidePitch } from './glide';
+
+describe('arpeggiator order (p. 52)', () => {
+  const chord = [64, 60, 67]; // played E, C, G
+  it('up / down / played', () => {
+    expect(arpSequence(chord, 'up', 1, 6)).toEqual([60, 64, 67, 60, 64, 67]);
+    expect(arpSequence(chord, 'down', 1, 3)).toEqual([67, 64, 60]);
+    expect(arpSequence(chord, 'played', 1, 3)).toEqual([64, 60, 67]);
+  });
+  it('UpDn alternates, UpDn2 repeats the end notes', () => {
+    expect(arpSequence(chord, 'updn', 1, 8)).toEqual([60, 64, 67, 64, 60, 64, 67, 64]);
+    expect(arpSequence(chord, 'updn2', 1, 6)).toEqual([60, 64, 67, 67, 64, 60]);
+  });
+  it('octaves repeat the pattern higher', () => {
+    expect(arpSequence([60, 64], 'up', 2, 4)).toEqual([60, 64, 72, 76]);
+  });
+  it('random only uses held notes', () => {
+    for (const n of arpSequence(chord, 'random', 1, 20)) expect(chord).toContain(n);
+  });
+});
+
+describe('glide', () => {
+  it('jumps when off and slides when on', () => {
+    expect(glidePitch(0, 12, 0, 0.001)).toBe(12);
+    const mid = glidePitch(0, 12, 64, 0.05);
+    expect(mid).toBeGreaterThan(0);
+    expect(mid).toBeLessThan(12);
+  });
+  it('diverged oscillator lags behind', () => {
+    expect(glidePitch(0, 12, 64, 0.1, 10)).toBeLessThan(glidePitch(0, 12, 64, 0.1, 0));
+  });
+});

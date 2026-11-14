@@ -1,5 +1,6 @@
 import { isThemePreference, usePreferencesStore } from '@/stores/preferencesStore';
 import { usePersistenceStore } from '@/stores/persistenceStore';
+import { parseProgress, serializeProgress, useProgressStore } from '@/stores/progressStore';
 import { useSynthStore } from '@/stores/synthStore';
 import { readKey, writeKey } from './storage/db';
 
@@ -22,10 +23,13 @@ function isStoredPanelState(v: unknown): v is StoredPanelState {
 export async function initPersistence(): Promise<void> {
   const status = usePersistenceStore.getState();
   try {
-    const [theme, panel] = await Promise.all([
+    const [theme, panel, progress] = await Promise.all([
       readKey('preferences', 'theme'),
       readKey('session', 'panel'),
+      readKey('progress', 'v1'),
     ]);
+    const parsedProgress = parseProgress(progress);
+    if (parsedProgress) useProgressStore.getState().load(parsedProgress);
     if (isThemePreference(theme)) usePreferencesStore.getState().setTheme(theme);
     if (isStoredPanelState(panel)) {
       const rejected = useSynthStore.getState().replaceValues(panel.values, 'system');
@@ -39,6 +43,10 @@ export async function initPersistence(): Promise<void> {
 
   usePreferencesStore.subscribe((s, prev) => {
     if (s.theme !== prev.theme) void writeKey('preferences', 'theme', s.theme).catch(reportError);
+  });
+
+  useProgressStore.subscribe((s) => {
+    void writeKey('progress', 'v1', serializeProgress(s)).catch(reportError);
   });
 
   let timer: ReturnType<typeof setTimeout> | undefined;

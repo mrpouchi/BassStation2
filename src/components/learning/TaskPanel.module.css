@@ -1,0 +1,97 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.prompt {
+  font-weight: 500;
+}
+.targets {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.target {
+  display: grid;
+  grid-template-columns: 20px 1fr;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+}
+.icon {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 11px;
+  font-weight: 700;
+  background: var(--surface-2);
+  color: var(--text-faint);
+}
+.met {
+  background: var(--success-soft);
+  color: var(--success);
+}
+.unmet {
+  background: var(--warning-soft);
+  color: var(--warning);
+}
+.hint {
+  color: var(--text-muted);
+  display: block;
+}
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.option {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  cursor: pointer;
+  text-align: left;
+}
+.option:hover {
+  border-color: var(--border-strong);
+}
+.optionSelected {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.optionCorrect {
+  border-color: var(--success);
+  background: var(--success-soft);
+}
+.optionWrong {
+  border-color: var(--warning);
+  background: var(--warning-soft);
+}
+.actions {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  align-items: center;
+}
+.feedback {
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-sm);
+}
+.success {
+  background: var(--success-soft);
+  color: var(--text);
+  border-left: 3px solid var(--success);
+}
+.retry {
+  background: var(--warning-soft);
+  color: var(--text);
+  border-left: 3px solid var(--warning);
+}

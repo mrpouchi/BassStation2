@@ -4,6 +4,7 @@ import { ButtonLink } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { CURRICULUM } from '@/data/lessons/curriculum';
+import { LESSONS } from '@/data/lessons';
 import { detectWebMidiSupport, WEB_MIDI_SUPPORT_TEXT } from '@/engine/midi/support';
 import { computeRegistryStats } from '@/engine/parameters/stats';
 import { usePersistenceStore } from '@/stores/persistenceStore';
@@ -23,9 +24,7 @@ export function DashboardPage() {
   const midi = useMemo(() => detectWebMidiSupport(), []);
   const persistence = usePersistenceStore();
   const lessonCount = CURRICULUM.reduce((n, c) => n + c.lessons.length, 0);
-  const available = CURRICULUM.flatMap((c) => c.lessons).filter(
-    (l) => l.status === 'available',
-  ).length;
+  const available = LESSONS.size;
 
   return (
     <>

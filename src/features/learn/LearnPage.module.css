@@ -1,6 +1,6 @@
 .chapters {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
   gap: var(--space-4);
 }
 .number {
@@ -14,15 +14,44 @@
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 2px;
 }
-.lessons li {
+.lessonLink {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   gap: var(--space-2);
   font-size: var(--text-sm);
+  padding: 6px var(--space-2);
+  margin: 0 calc(-1 * var(--space-2));
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  color: var(--text);
 }
-.notice {
+.lessonLink:hover {
+  background: var(--surface-2);
+}
+.check {
+  color: var(--success);
+  font-weight: 700;
+}
+.progress {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--surface-2);
+  overflow: hidden;
+}
+.progressBar {
+  height: 100%;
+  background: var(--accent);
+  transition: width var(--duration-base) var(--ease);
+}
+.summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-4);
+  flex-wrap: wrap;
   margin-bottom: var(--space-5);
   color: var(--text-muted);
 }

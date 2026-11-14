@@ -2,6 +2,7 @@ import { createBrowserRouter, type RouteObject } from 'react-router-dom';
 import { ChallengesPage } from '@/features/challenges/ChallengesPage';
 import { DashboardPage } from '@/features/dashboard/DashboardPage';
 import { LearnPage } from '@/features/learn/LearnPage';
+import { LessonPage } from '@/features/learn/LessonPage';
 import { SoundLibraryPage } from '@/features/sound-library/SoundLibraryPage';
 import { SynthLabPage } from '@/features/synth-lab/SynthLabPage';
 import { AppShell } from './AppShell';
@@ -13,6 +14,7 @@ export const routes: RouteObject[] = [
     children: [
       { index: true, element: <DashboardPage /> },
       { path: 'learn', element: <LearnPage /> },
+      { path: 'learn/:chapterId/:lessonId', element: <LessonPage /> },
       { path: 'synth-lab', element: <SynthLabPage /> },
       { path: 'challenges', element: <ChallengesPage /> },
       { path: 'library', element: <SoundLibraryPage /> },

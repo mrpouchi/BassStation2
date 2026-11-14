@@ -1,14 +1,11 @@
 /**
- * Curriculum outline. Phase 1 defines structure only: lesson content
- * (objective, explanation, demonstration, experiment, exercise, validation)
- * is authored in Phase 3. `status` must stay 'planned' until a lesson has all six parts.
+ * Curriculum outline: chapter and lesson order. Lesson content lives in
+ * ./chapter*.ts; availability is derived from it (see isLessonAvailable).
  */
-export type LessonStatus = 'planned' | 'available';
 
 export interface LessonOutline {
   readonly id: string;
   readonly title: string;
-  readonly status: LessonStatus;
   /** Parameters this lesson teaches; validated against the registry in tests. */
   readonly parameters: readonly string[];
 }
@@ -23,7 +20,6 @@ export interface ChapterOutline {
 const lesson = (id: string, title: string, parameters: readonly string[] = []): LessonOutline => ({
   id,
   title,
-  status: 'planned',
   parameters,
 });
 

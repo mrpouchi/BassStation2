@@ -24,7 +24,6 @@ const W = 480;
 const H = 170;
 const PAD_B = 18;
 const PAD = 6;
-const GATE = 1; // seconds the key is held in the illustration
 
 function settings(v: Readonly<Record<string, unknown>>, p: 'ampEnv' | 'modEnv'): EnvelopeSettings {
   return {
@@ -45,14 +44,22 @@ export function EnvelopeVisualizer() {
   const amp = useMemo(() => settings(v, 'ampEnv'), [v]);
   const mod = useMemo(() => settings(v, 'modEnv'), [v]);
   const focus = str(v['panel.envSelect'], 'amp');
+  // Hold the key long enough to show attack + decay, then a little sustain (0.25–4 s).
+  const GATE = Math.min(
+    4,
+    Math.max(
+      0.25,
+      Math.max(attackOf(amp) + decayOf(amp), attackOf(mod) + decayOf(mod)) * 1.4 + 0.1,
+    ),
+  );
 
   const total = Math.min(
     Math.max(envelopeDuration(amp, GATE), envelopeDuration(mod, GATE), GATE * 1.5),
     25,
   );
   const ts = useMemo(() => Array.from({ length: 400 }, (_, i) => (i / 399) * total), [total]);
-  const ampY = useMemo(() => ts.map((t) => envelopeLevel(amp, t, GATE)), [ts, amp]);
-  const modY = useMemo(() => ts.map((t) => envelopeLevel(mod, t, GATE)), [ts, mod]);
+  const ampY = useMemo(() => ts.map((t) => envelopeLevel(amp, t, GATE)), [ts, amp, GATE]);
+  const modY = useMemo(() => ts.map((t) => envelopeLevel(mod, t, GATE)), [ts, mod, GATE]);
 
   const mapX = linear(0, total, PAD, W - PAD);
   const mapY = linear(0, 1, H - PAD_B, PAD);
@@ -78,7 +85,7 @@ export function EnvelopeVisualizer() {
           </span>
         </>
       }
-      caption="Level over time for a key held 1 s (dashed line = key released). The mid-travel times (attack ≈ 250 ms, decay ≈ 150 ms, release ≈ 360 ms) come from the manual. Other points are interpolated. The Env Select switch decides which curve is highlighted."
+      caption="Level over time for one held note (dashed line = key released, timed to show the whole shape). The mid-travel times (attack ≈ 250 ms, decay ≈ 150 ms, release ≈ 360 ms) come from the manual. Other points are interpolated. The Env Select switch decides which curve is highlighted."
     >
       <svg viewBox={`0 0 ${W} ${H}`} className={s.svg} role="img" aria-label="Envelope curves">
         <line x1={PAD} x2={W - PAD} y1={mapY(0)} y2={mapY(0)} className={s.axis} />

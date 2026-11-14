@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { Badge, type BadgeTone } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { ParameterEditor } from '@/components/controls/ParameterEditor';
@@ -159,8 +160,9 @@ export function ParameterInspector() {
               <ul style={{ margin: 0, paddingLeft: 18 }} className={styles.note}>
                 {lessons.map((l) => (
                   <li key={`${l.chapter.id}/${l.id}`}>
-                    Chapter {l.chapter.number} · {l.title}
-                    {l.status === 'planned' && ' (in writing)'}
+                    <Link to={`/learn/${l.chapter.id}/${l.id}`}>
+                      Chapter {l.chapter.number} · {l.title}
+                    </Link>
                   </li>
                 ))}
               </ul>

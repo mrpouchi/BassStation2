@@ -1,0 +1,83 @@
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--inspector-width);
+  gap: var(--space-5);
+  align-items: start;
+}
+.side {
+  position: sticky;
+  top: var(--space-5);
+  max-height: calc(100vh - 2 * var(--space-5));
+  overflow-y: auto;
+  border-radius: var(--radius-lg);
+}
+.sections {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.stepNum {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--accent);
+}
+.objective {
+  font-size: var(--text-lg);
+  color: var(--text);
+}
+.paragraphs {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  max-width: 72ch;
+}
+.steps {
+  margin: 0;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.editors {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--space-4);
+}
+.editorName {
+  border: 0;
+  background: none;
+  padding: 0;
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--text);
+  margin-bottom: 6px;
+  text-align: left;
+}
+.editorName:hover {
+  color: var(--accent);
+}
+.row {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  align-items: center;
+}
+.nav {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+.muted {
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+}
+@media (max-width: 1100px) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .side {
+    position: static;
+    max-height: none;
+  }
+}
