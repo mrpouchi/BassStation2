@@ -14,8 +14,6 @@ interface HardwareUiState {
   /** MIDI note of the most recently played virtual key. */
   playedNote: number | null;
   heldKey: number | null;
-  /** performance.now() of the last key press, so repeated notes are distinguishable. */
-  playedAt: number;
 
   toggleFunction: () => void;
   exitFunction: () => void;
@@ -33,7 +31,6 @@ export const useHardwareUiStore = create<HardwareUiState>()((set, get) => ({
   touched: null,
   playedNote: null,
   heldKey: null,
-  playedAt: 0,
 
   toggleFunction: () =>
     set((s) => ({ functionActive: !s.functionActive, onKey: null, transposeArmed: false })),
@@ -51,7 +48,6 @@ export const useHardwareUiStore = create<HardwareUiState>()((set, get) => ({
   toggleTranspose: () =>
     set((s) => ({ transposeArmed: !s.transposeArmed, functionActive: false, onKey: null })),
   touch: (id) => set({ touched: { id, at: Date.now() } }),
-  pressKey: (keyIndex, midi) =>
-    set({ heldKey: keyIndex, playedNote: midi, playedAt: performance.now() }),
+  pressKey: (keyIndex, midi) => set({ heldKey: keyIndex, playedNote: midi }),
   releaseKey: () => set({ heldKey: null }),
 }));

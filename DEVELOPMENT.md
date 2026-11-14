@@ -84,26 +84,13 @@ can hide them and reveal hints after each check.
   - Users' own results (`useMidiStore.verification`) are displayed separately as "(your device)" through
     `effectiveVerification()`.
 
-### 5. Play Along (`src/engine/songs`, `src/features/play-along`)
-
-- `midiFile.ts`: dependency-free SMF reader (formats 0/1, PPQ or SMPTE, tempo map, running status,
-  note-on velocity 0 as note-off, hanging notes closed at end of track). `pickBassTrack` and `monophonic`
-  prepare a line for the synth.
-- `SongPlayer.ts`: lookahead scheduler (25 ms tick, 120 ms horizon) that sends note-on/off pairs with Web
-  MIDI timestamps through `MidiController.sendTimed`. The clock and output are injected, so tests use a
-  fake clock. It handles rate, transpose, looping, and silencing on stop or seek.
-- `grading.ts`: pure judging of notes played on the synth (hit, wrong, missed, extra) within a timing
-  window. Notes are read from `useHardwareUiStore` (`heldKey === -1` and `playedAt` mark MIDI input).
-
-### 6. Persistence (`src/services`)
+### 5. Persistence (`src/services`)
 
 - IndexedDB `bass-station-academy` holds these object stores:
   - `preferences`: theme, MIDI settings;
   - `session`: panel values as `{ format: 1, values }`;
   - `progress`: `v1`;
-  - `presets`: one record per preset;
-  - `songs` (since v2): imported MIDI files as `{ format: 1, id, fileName, addedAt, bytes }`. The bytes
-    are parsed again on load, and unreadable records are skipped.
+  - `presets`: one record per preset.
 - Migrations live in `services/storage/db.ts`: bump `DB_VERSION` and append a function to `MIGRATIONS`.
 - Everything read from storage or imported from a file goes through a parser: `sanitizeValues`,
   `parseProgress`, `parseMidiSettings`, `parsePreset`, `parseImportFile`.
@@ -136,7 +123,7 @@ All six phases are implemented. The numbers:
 | Lessons                  | 44 across 8 chapters                         |
 | Challenges               | 18 across 6 types                            |
 | Example presets          | 6                                            |
-| Tests                    | 283 Vitest + 8 Playwright                    |
+| Tests                    | 267 Vitest + 7 Playwright                    |
 
 ## Known limitations
 
