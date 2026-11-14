@@ -1,120 +1,143 @@
 # Bass Station Academy — development guide
 
-An interactive web app for learning subtractive synthesis on the **Novation Bass Station II**.
-It is visual only (no audio engine). It works without hardware and, in a later milestone,
-connects to a real Bass Station II over Web MIDI.
+The [README](README.md) explains what the app does and what it does not do. This file is for people
+working on the code.
 
-## Quick start
+## Setup and commands
 
 ```bash
 npm install
-npm run dev          # http://localhost:5173
-npm test             # unit + component tests (Vitest, jsdom, fake IndexedDB)
-npm run test:e2e     # Playwright smoke tests against a production build
+npx playwright install chromium   # once, for end-to-end tests
+npm run dev                       # http://localhost:5173
+npm test                          # Vitest (jsdom + fake-indexeddb)
+npm run test:e2e                  # Playwright against a production build (port 4173)
 npm run lint && npm run typecheck && npm run build
 ```
 
-Node 20+ is required. The development target is desktop Chrome. Web MIDI requires HTTPS or localhost.
-
-## Stack
-
-React 18 · TypeScript (strict, `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`) · Vite 5 ·
-CSS Modules + design tokens · React Router 6 · Zustand 5 · IndexedDB via `idb` · Vitest +
-Testing Library · Playwright · ESLint (typescript-eslint strict) · Prettier.
+Node 20+. TypeScript runs in strict mode with `noUncheckedIndexedAccess` and `exactOptionalPropertyTypes`.
 
 ## Architecture
 
-```
-src/
-  app/                 shell, routing, navigation, icons
-  components/
-    ui/                design-system primitives (Button, Badge, Card, SegmentedControl…)
-    controls/          parameter-bound inputs (ParameterEditor)
-    synthesizer/       Hardware View panel components (Phase 2)
-    visualizers/       waveform / filter / ADSR / LFO views (Phase 2)
-  features/            one folder per section: dashboard, learn, synth-lab, challenges, sound-library, midi
-  engine/
-    parameters/        types, registry lookups, validation, formatting, control routing
-    midi/              Web MIDI support detection, MIDI descriptions (MIDI modules: Phase 5)
-    visuals/           pure math for visualizers (Phase 2)
-  data/
-    synthesizer/       ★ parameter registry, control inventory, On-Key layout, concepts, sync values
-    lessons/           curriculum outline (content: Phase 3)
-    challenges/        (Phase 4)
-  stores/              Zustand stores (synth state, preferences, persistence status)
-  services/            IndexedDB access and persistence wiring
-  styles/              tokens.css (light/dark), global.css
-docs/research/         sources and findings about the hardware
-e2e/                   Playwright tests
-```
+The folder layout is in the README. The key ideas:
 
-### Single source of truth
+### 1. One parameter model
 
-- `src/data/synthesizer/parameters/*` holds **one** `ParameterDefinition` per value: name, section,
-  scope, access path (panel / On-Key key × presses / Function+control), range, default (Init Patch),
-  unit, education text, concepts, related parameters, MIDI mapping with verification status, manual
-  page, and affected visualizers.
-- `src/data/synthesizer/controls.ts` describes **physical controls**, which _target_ parameters. Shared
-  controls route through panel selector parameters. For example, the Coarse knob edits `osc1.coarse` or `osc2.coarse`
-  depending on `panel.oscSelect`, and the ADSR faders edit one or both envelopes via `panel.envSelect`.
-  `resolveControlTarget()` resolves this from live state.
-- `useSynthStore` holds the only live value map. Every view reads from it and writes to it through
-  `setValue(id, raw, origin)`, which validates, clamps and step-snaps. `origin` (`ui | midi | preset |
-system`) lets the MIDI layer avoid feedback loops.
-- Untrusted data (storage, imports) always passes through `sanitizeValues()`.
+- **`src/data/synthesizer/parameters/*`**: one `ParameterDefinition` per value. Each has a name, section
+  and scope (`patch` / `global` / `performance` / `panel`), plus:
+  - how it is reached (`panel`, `on-key` key × presses, or `function-modifier`);
+  - range, step, unit and default (from the Init Patch, with `defaultInferred` where the manual is silent),
+    and `rangeSource`;
+  - education text, concepts, related parameters and affected visuals;
+  - MIDI mapping and verification, and the manual page.
+- **`src/data/synthesizer/controls.ts`**: the physical controls. A control's `target` is either a
+  parameter, several parameters, or a routing node `{ via: selectorParam, routes }`. `functionTarget` says
+  what it edits while Function is held. `resolveControlTarget(target, values)` resolves the current
+  routing.
+- **`useSynthStore`**: the only live value map. `setValue(id, raw, origin)` validates, clamps and snaps
+  to the step. `replaceValues(input, origin)` sanitises whole maps (storage, presets, lesson starting
+  points).
+- Components never hold their own copy of a value. Visualisers read through `useSynthValues(ids)`, which
+  can be redirected by `ValuesOverrideContext`; demos and challenge targets use this to show fixed values
+  without touching the user's state.
 
-### MIDI verification policy
+### 2. Visual engine (`src/engine/visuals`)
 
-A mapping copied from the manual has status `requires-testing`. Only a hardware test session may
-promote it to `input-verified`, `output-verified` or `both-verified`. A unit test enforces that nothing
-is marked verified today. The UI never presents an untested mapping as working.
+These are pure functions with no React, covered by unit tests:
 
-### Persistence
+- `calibration.ts`: maps panel values to physical units. Documented anchors cite the manual; inferred
+  ones are marked as inferred.
+- `waveforms.ts`, `oscillatorMix.ts`, `filter.ts` (analog prototype magnitude responses), `envelope.ts`,
+  `lfo.ts`, `arp.ts`, `glide.ts`, `notes.ts`.
+- Every visualiser is wrapped in `VizFrame`, which carries the "Theoretical model" badge.
+  `VizOptionsContext` hides the numeric readouts on quiz targets.
 
-IndexedDB database `bass-station-academy`, stores `preferences`, `session`, `presets`, `progress`.
-To change the schema, bump `DB_VERSION` and append a migration in `src/services/storage/db.ts`.
-Stored panel state is wrapped as `{ format: 1, values }` so it can be migrated later. If IndexedDB
-is unavailable, the app keeps working and the dashboard says changes won't be kept.
+### 3. Tasks (`src/engine/tasks`)
+
+`Task` = `set` (conditions on parameters) | `choice` | `changed` (N patch parameters differ from Init) |
+`select` (identify a control: the inspected parameter must match). `evaluateTask` returns per-condition
+results and a message. `TaskPanel` renders any task; lessons show the targets up front, while challenges
+can hide them and reveal hints after each check.
+
+### 4. MIDI (`src/engine/midi`, `src/services/midiController.ts`)
+
+- `MidiDeviceManager`: a Web MIDI wrapper (ports, `statechange`), free of app state.
+- `MidiParameterMapper`: one codec per parameter (`bits`, `basis: documented | inferred`, encode and
+  decode), message building (CC, 8-bit CC pair, NRPN 99/98/6), and lookup indexes for incoming messages.
+- `MidiInputHandler`: a stateful parser for CC pairs and the NRPN sequence, plus notes, bend, pressure and
+  program change.
+- `MidiOutputHandler`: coalesces values per parameter and flushes once per animation frame.
+- `useMidiStore`: connection state, ports, receive/send flags, the activity log, and the user's local
+  verification results.
+- `MidiController`: wires everything together.
+  - It writes incoming changes with origin `'midi'`.
+  - It only sends changes whose origin is `'ui'` or `'preset'` with a single id, and only when sending is
+    enabled. Bulk loads are sent explicitly with `sendPatch()`.
+  - It remembers the selected ports by ID and name so it can reattach after a reconnection.
+- Verification policy:
+  - The registry stays at `requires-testing` until a hardware session confirms a mapping. A test enforces
+    this.
+  - Users' own results (`useMidiStore.verification`) are displayed separately as "(your device)" through
+    `effectiveVerification()`.
+
+### 5. Persistence (`src/services`)
+
+- IndexedDB `bass-station-academy` holds these object stores:
+  - `preferences`: theme, MIDI settings;
+  - `session`: panel values as `{ format: 1, values }`;
+  - `progress`: `v1`;
+  - `presets`: one record per preset.
+- Migrations live in `services/storage/db.ts`: bump `DB_VERSION` and append a function to `MIGRATIONS`.
+- Everything read from storage or imported from a file goes through a parser: `sanitizeValues`,
+  `parseProgress`, `parseMidiSettings`, `parsePreset`, `parseImportFile`.
+- If IndexedDB is unavailable, the app runs in memory and says so on the dashboard and in the Sound
+  Library.
 
 ## Conventions
 
-- Parameter ids: `section.camelName` (e.g. `filter.lfo2Depth`). Panel routing switches use `panel.*`.
-- Official names come from the manual and panel. Never invent controls or ranges. Mark anything
-  undocumented with `rangeSource: 'inferred'`, `defaultInferred: true` or a `midi.notes` entry.
-- Colours only via tokens in `styles/tokens.css`. Every token is defined for both light and dark.
-- Components use CSS Modules. Avoid inline styles except for one-off dynamic values.
-- No placeholder presented as complete. Unbuilt features show an honest empty state.
+- **Never invent hardware facts.** New parameters must cite a manual page. Anything the manual omits gets
+  `rangeSource: 'inferred'`, `defaultInferred: true` or a `midi.notes` entry, and should be added to
+  `docs/research/bass-station-ii-reference.md`.
+- Parameter IDs follow `section.camelName`. Panel routing switches use `panel.*`.
+- Colours come only from the tokens in `src/styles/tokens.css`, defined for both light and dark. The
+  virtual panel is always dark, like the instrument.
+- CSS Modules for components. Inline styles only for one-off dynamic values.
+- No placeholder may look finished. Unbuilt or unsupported things say so plainly in the UI.
+- New lessons and challenges are covered by tests automatically. They must use valid parameters, be
+  solvable, and not already be solved by the Init Patch.
 
 ## Current status
 
-**Phase 1: foundations. Done.**
+All six phases are implemented. The numbers:
 
-- Vite/React/TS project, lint, format, unit/component/E2E tests.
-- Design system (tokens, light/dark/auto theme, primitives) and responsive app shell with navigation.
-- Parameter registry: 114 parameters, 58 physical controls (all manual callouts 1–49), 25-key On-Key
-  layout including multi-press functions, concept glossary, sync-value table, Init Patch defaults.
-- Synth Lab reference (Parameters / Panel controls / On-Key) with a parameter inspector bound to the
-  shared store, showing live control routing.
-- IndexedDB persistence of theme and panel state, with validation on load.
-- Web MIDI capability detection. No device access yet.
-- Curriculum outline (8 chapters, 44 lessons) marked "in writing".
+|                          |                                              |
+| ------------------------ | -------------------------------------------- |
+| Parameters               | 114 (all cite manual pages)                  |
+| Physical controls        | 58, covering callouts 1–49                   |
+| On-Key functions         | 37, including multi-press extended functions |
+| Documented MIDI mappings | 100 (0 verified on hardware by the project)  |
+| Lessons                  | 44 across 8 chapters                         |
+| Challenges               | 18 across 6 types                            |
+| Example presets          | 6                                            |
+| Tests                    | 256 Vitest + 7 Playwright                    |
 
 ## Known limitations
 
-- No Hardware View, Learning View or visualizers yet (Phase 2).
-- No lesson content, challenges or presets yet.
-- No MIDI device connection. All 100 documented mappings are untested on hardware.
-- Manual discrepancies are listed in `docs/research/bass-station-ii-reference.md`.
-- The parameter range model is the display range. MIDI value encoding is defined in Phase 5.
+The full list is in the README under "What the app cannot do (yet)". Technical notes:
 
-## Next tasks (Phase 2: Synth Lab)
+- The value encodings of CC pairs (8-bit split: MSB = top 7 bits, LSB bit 6 = lowest bit), the bipolar
+  offsets and the enum indexes are inferred.
+- The duplicate NRPN 87/91 entries (Speed/Sync vs Sync Value) resolve to Speed/Sync on input. This
+  ambiguity is pinned by a test.
+- The bundle is ~300 KB of app code plus ~210 KB of vendor code (uncompressed). Route-level code
+  splitting was not needed for the current size.
+- There is no service worker, so no installable offline mode.
 
-1. Gather a panel layout reference and build the Hardware View (knob, fader, switch, select-button
-   and LED components driven by `CONTROLS` and `resolveControlTarget`).
-2. Pointer, wheel and keyboard interaction for knobs/faders, with fine-adjust modifiers and accessible
-   `role="slider"` semantics.
-3. Learning View: the same store grouped by concept, using `ParameterEditor`.
-4. `engine/visuals`: pure functions for waveform samples (incl. pulse width, sync), filter magnitude
-   response (type/shape/slope/cutoff/resonance), ADSR curves (using the documented time anchors),
-   and LFO shapes (incl. slew and delay). Unit-test them, then render with SVG.
-5. Label visualizations clearly as theoretical models, not circuit simulations.
+## Next tasks
+
+1. Hardware verification session. Promote confirmed mappings and correct the codecs in
+   `MidiParameterMapper`.
+2. Patch SysEx research from real dumps, then hardware preset import and export.
+3. An optional Web Audio preview, labelled as an approximation.
+4. i18n (French first).
+5. Lessons for AFX mode, micro-tuning and paraphony.
+6. A service worker for offline installs.
