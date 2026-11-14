@@ -40,10 +40,37 @@ interface MidiState {
   verification: Record<string, LocalVerification>;
   /** Parameter currently armed for an input test. */
   listeningFor: string | null;
-  set: (patch: Partial<Omit<MidiState, 'set' | 'addLog' | 'recordVerification'>>) => void;
+  /**
+   * Values the user taught the app for their own device: parameter id → raw MIDI
+   * value → option value. Used when the documented/inferred codec does not know a value.
+   */
+  learnedValues: LearnedValues;
+  /** Raw values received that no codec or learned table could decode, newest first. */
+  unknownValues: UnknownValue[];
+  set: (
+    patch: Partial<
+      Omit<
+        MidiState,
+        'set' | 'addLog' | 'recordVerification' | 'learnValue' | 'forgetLearned' | 'noteUnknown'
+      >
+    >,
+  ) => void;
   addLog: (entry: MidiLogEntry) => void;
   recordVerification: (id: string, patch: Omit<LocalVerification, 'at'>) => void;
+  learnValue: (id: string, raw: number, value: string) => void;
+  forgetLearned: (id: string) => void;
+  noteUnknown: (id: string, raw: number) => void;
 }
+
+export type LearnedValues = Readonly<Record<string, Readonly<Record<number, string>>>>;
+
+export interface UnknownValue {
+  id: string;
+  raw: number;
+  at: number;
+}
+
+const MAX_UNKNOWN = 8;
 
 const MAX_LOG = 60;
 
@@ -61,6 +88,8 @@ export const useMidiStore = create<MidiState>()((set) => ({
   log: [],
   verification: {},
   listeningFor: null,
+  learnedValues: {},
+  unknownValues: [],
   set: (patch) => set(patch),
   addLog: (entry) => set((s) => ({ log: [entry, ...s.log].slice(0, MAX_LOG) })),
   recordVerification: (id, patch) =>
@@ -69,6 +98,22 @@ export const useMidiStore = create<MidiState>()((set) => ({
         ...s.verification,
         [id]: { ...s.verification[id], ...patch, at: Date.now() },
       },
+    })),
+  learnValue: (id, raw, value) =>
+    set((s) => ({
+      learnedValues: { ...s.learnedValues, [id]: { ...s.learnedValues[id], [raw]: value } },
+      unknownValues: s.unknownValues.filter((u) => !(u.id === id && u.raw === raw)),
+    })),
+  forgetLearned: (id) =>
+    set((s) => ({
+      learnedValues: Object.fromEntries(Object.entries(s.learnedValues).filter(([k]) => k !== id)),
+    })),
+  noteUnknown: (id, raw) =>
+    set((s) => ({
+      unknownValues: [
+        { id, raw, at: Date.now() },
+        ...s.unknownValues.filter((u) => !(u.id === id && u.raw === raw)),
+      ].slice(0, MAX_UNKNOWN),
     })),
 }));
 
@@ -88,6 +133,7 @@ export interface StoredMidiSettings {
   preferredInputName: string | null;
   preferredOutputName: string | null;
   verification: Record<string, LocalVerification>;
+  learnedValues?: LearnedValues;
 }
 
 export function parseMidiSettings(v: unknown): StoredMidiSettings | null {
@@ -107,8 +153,22 @@ export function parseMidiSettings(v: unknown): StoredMidiSettings | null {
       };
     }
   }
+  const learnedValues: Record<string, Record<number, string>> = {};
+  if (typeof o.learnedValues === 'object' && o.learnedValues !== null) {
+    for (const [id, table] of Object.entries(o.learnedValues as Record<string, unknown>)) {
+      if (typeof table !== 'object' || table === null) continue;
+      const clean: Record<number, string> = {};
+      for (const [raw, value] of Object.entries(table as Record<string, unknown>)) {
+        const n = Number(raw);
+        if (Number.isInteger(n) && n >= 0 && n <= 255 && typeof value === 'string')
+          clean[n] = value;
+      }
+      if (Object.keys(clean).length > 0) learnedValues[id] = clean;
+    }
+  }
   return {
     format: 1,
+    learnedValues,
     receive: o.receive !== false,
     send: o.send === true,
     preferredInputName: typeof o.preferredInputName === 'string' ? o.preferredInputName : null,

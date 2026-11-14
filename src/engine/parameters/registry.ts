@@ -194,6 +194,70 @@ export function allControlTargets(target: ControlTarget | null): string[] {
   return [target.via, ...Object.values(target.routes).flatMap(allControlTargets)];
 }
 
+/**
+ * Panel switch positions that route a physical control to a parameter.
+ * `single` reaches the parameter alone; `group` (optional) reaches it together
+ * with `siblings` (e.g. Env Select on Amp+Mod edits both envelopes at once).
+ */
+export interface SelectorRouting {
+  readonly single: Readonly<Record<string, string>> | null;
+  readonly group: {
+    readonly selectors: Readonly<Record<string, string>>;
+    readonly siblings: readonly string[];
+  } | null;
+}
+
+function collectRoutes(
+  target: ControlTarget,
+  path: Record<string, string>,
+  out: Map<string, { single: Record<string, string>[]; groups: SelectorRouting['group'][] }>,
+): void {
+  if ('action' in target) return;
+  const entry = (id: string) => {
+    let e = out.get(id);
+    if (!e) out.set(id, (e = { single: [], groups: [] }));
+    return e;
+  };
+  if ('param' in target) entry(target.param).single.push(path);
+  else if ('params' in target) {
+    for (const id of target.params)
+      entry(id).groups.push({
+        selectors: path,
+        siblings: target.params.filter((p) => p !== id),
+      });
+  } else {
+    for (const [key, next] of Object.entries(target.routes))
+      collectRoutes(next, { ...path, [target.via]: key }, out);
+  }
+}
+
+const selectorRoutingById: ReadonlyMap<string, SelectorRouting> = (() => {
+  const raw = new Map<
+    string,
+    { single: Record<string, string>[]; groups: SelectorRouting['group'][] }
+  >();
+  for (const c of CONTROLS) if (c.target) collectRoutes(c.target, {}, raw);
+  const out = new Map<string, SelectorRouting>();
+  for (const [id, r] of raw) {
+    // A parameter that some control reaches without any switch needs no routing.
+    if (r.single.some((p) => Object.keys(p).length === 0)) continue;
+    // Only unambiguous routes are usable.
+    const single = r.single.length === 1 ? (r.single[0] ?? null) : null;
+    const group = r.groups.length === 1 ? (r.groups[0] ?? null) : null;
+    if (single || group) out.set(id, { single, group });
+  }
+  return out;
+})();
+
+/**
+ * How the panel switches must be set for a physical control to edit `id`, or
+ * undefined when no switch is involved. Used to follow hardware switches
+ * that transmit no MIDI of their own (Osc Select, Env Select, …).
+ */
+export function selectorRoutingFor(id: string): SelectorRouting | undefined {
+  return selectorRoutingById.get(id);
+}
+
 /** Like allControlTargets, plus the Function-modifier target. */
 export function allControlTargetsWithFunction(control: ControlDefinition): string[] {
   return [

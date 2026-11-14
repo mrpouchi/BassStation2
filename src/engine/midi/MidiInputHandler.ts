@@ -3,7 +3,9 @@ import type { ParameterValue } from '@/engine/parameters/types';
 import { CC_INDEX, codecFor, joinPair, NRPN_INDEX } from './MidiParameterMapper';
 
 export type MidiInputEvent =
-  | { kind: 'parameter'; id: string; value: ParameterValue }
+  | { kind: 'parameter'; id: string; value: ParameterValue; raw?: number }
+  /** A mapped parameter whose raw value the codec could not decode (e.g. an unknown switch value). */
+  | { kind: 'undecoded'; id: string; raw: number }
   | { kind: 'note'; on: boolean; note: number; velocity: number }
   | { kind: 'program'; program: number }
   | { kind: 'clock' };
@@ -73,10 +75,8 @@ export class MidiInputHandler {
     }
     if (cc === 6 && this.nrpnMsb !== null && this.nrpnLsb !== null) {
       const def = NRPN_INDEX.get(`${this.nrpnMsb}:${this.nrpnLsb}`);
-      const decoded = def ? codecFor(def)?.decode(value) : undefined;
-      return def && decoded !== undefined
-        ? [{ kind: 'parameter', id: def.id, value: decoded }]
-        : [];
+      if (!def) return [];
+      return [decodedEvent(def.id, codecFor(def)?.decode(value), value)];
     }
     if (cc === 1) return [{ kind: 'parameter', id: 'performance.modWheel', value }];
     if (cc === 64) return [{ kind: 'parameter', id: 'performance.sustain', value }];
@@ -95,9 +95,13 @@ export class MidiInputHandler {
       if (msb === undefined) return [];
       raw = joinPair(msb, value);
     }
-    const decoded = codec.decode(raw);
-    return decoded !== undefined && findParameter(route.def.id)
-      ? [{ kind: 'parameter', id: route.def.id, value: decoded }]
-      : [];
+    if (!findParameter(route.def.id)) return [];
+    return [decodedEvent(route.def.id, codec.decode(raw), raw)];
   }
+}
+
+function decodedEvent(id: string, value: ParameterValue | undefined, raw: number): MidiInputEvent {
+  return value === undefined
+    ? { kind: 'undecoded', id, raw }
+    : { kind: 'parameter', id, value, raw };
 }

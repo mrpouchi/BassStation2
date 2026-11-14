@@ -15,6 +15,7 @@ import {
   parametersOnKey,
   resolveControlTarget,
   sanitizeValues,
+  selectorRoutingFor,
 } from './registry';
 
 describe('parameter registry integrity', () => {
@@ -279,5 +280,21 @@ describe('control routing', () => {
     expect(resolveControlTarget(control('arp.octaves'), { ...base, 'arp.mode': 'play' })).toEqual([
       'arp.sequence',
     ]);
+  });
+});
+
+describe('selectorRoutingFor', () => {
+  it('knows which panel switches route a control to each parameter', () => {
+    expect(selectorRoutingFor('mixer.ringMod')?.single).toEqual({ 'panel.mixerSource': 'ring' });
+    expect(selectorRoutingFor('osc2.coarse')?.single).toEqual({ 'panel.oscSelect': 'osc2' });
+    expect(selectorRoutingFor('modEnv.attack')).toEqual({
+      single: { 'panel.envSelect': 'mod' },
+      group: { selectors: { 'panel.envSelect': 'both' }, siblings: ['ampEnv.attack'] },
+    });
+  });
+
+  it('returns nothing for parameters a control reaches directly', () => {
+    expect(selectorRoutingFor('filter.resonance')).toBeUndefined();
+    expect(selectorRoutingFor('mixer.osc1')).toBeUndefined();
   });
 });

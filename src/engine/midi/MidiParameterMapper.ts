@@ -29,6 +29,26 @@ const DOCUMENTED_ENUM_VALUES: Record<string, Record<string, number>> = {
   'osc2.range': { '16': 63, '8': 64, '4': 65, '2': 66 },
 };
 
+/**
+ * Inferred explicit value tables, used where a plain option index is known to be wrong.
+ * - Sub Osc Octave: the manual lists the values in the order "-2, -1" (p. 71).
+ * - Envelope triggering: a user's hardware showed Single and Multi swapped under
+ *   the option-index guess; this order (Multi, Single, Autoglide) follows that report
+ *   and is still unconfirmed. The manual only says "1, 2, 3" without naming them.
+ * Values the codec does not know can be taught per device on the Hardware page.
+ */
+const INFERRED_ENUM_VALUES: Record<string, { table: Record<string, number>; note: string }> = {
+  'sub.octave': { table: { '-2': 0, '-1': 1 }, note: 'Order as listed in the manual (-2, -1).' },
+  'ampEnv.triggering': {
+    table: { multi: 0, single: 1, autoglide: 2 },
+    note: 'Order from a hardware report, not from the manual.',
+  },
+  'modEnv.triggering': {
+    table: { multi: 0, single: 1, autoglide: 2 },
+    note: 'Order from a hardware report, not from the manual.',
+  },
+};
+
 export function codecFor(def: ParameterDefinition): Codec | null {
   const m = def.midi.mapping;
   if (!m || (m.type !== 'cc' && m.type !== 'nrpn')) return null;
@@ -56,6 +76,17 @@ export function codecFor(def: ParameterDefinition): Codec | null {
           description: def.options.map((o) => `${o.label} = ${table[o.value]}`).join(', '),
           encode: (v) => table[String(v)] ?? 64,
           decode: (raw) => def.options.find((o) => table[o.value] === raw)?.value,
+        };
+      }
+      const inferred = INFERRED_ENUM_VALUES[def.id];
+      if (inferred) {
+        const t = inferred.table;
+        return {
+          bits,
+          basis: 'inferred',
+          description: `${def.options.map((o) => `${o.label} = ${t[o.value]}`).join(', ')}. ${inferred.note}`,
+          encode: (v) => t[String(v)] ?? 0,
+          decode: (raw) => def.options.find((o) => t[o.value] === raw)?.value,
         };
       }
       return {

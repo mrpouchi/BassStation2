@@ -6,6 +6,7 @@ import { HardwarePanel } from '@/components/synthesizer/HardwarePanel';
 import { VisualizerGrid } from '@/components/visualizers/VisualizerGrid';
 import { useHardwareUiStore } from '@/stores/hardwareUiStore';
 import { useSynthStore } from '@/stores/synthStore';
+import { UnknownValuePrompts } from '@/features/midi/LearnSwitchValues';
 import { LearningView } from './LearningView';
 import { ParameterInspector } from './ParameterInspector';
 import { ReferenceView } from './ReferenceView';
@@ -67,6 +68,8 @@ export function SynthLabPage() {
           </span>
         )}
       </div>
+
+      <UnknownValuePrompts />
 
       {view === 'hardware' && (
         <div style={{ marginBottom: 20 }}>

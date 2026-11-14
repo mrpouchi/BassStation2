@@ -163,6 +163,7 @@ export function HardwarePanel() {
           y={225}
           orientation="horizontal"
           captions={{ osc1: '1', osc2: '2' }}
+          leds
           title="Osc Select"
         />
         <button

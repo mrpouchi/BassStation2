@@ -14,6 +14,21 @@ describe('MidiParameterMapper', () => {
     expect(codec?.decode(64)).toBe('8');
   });
 
+  it('orders Sub Osc Octave as the manual lists it (-2, -1)', () => {
+    const codec = codecFor(getParameter('sub.octave'));
+    expect(codec?.decode(0)).toBe('-2');
+    expect(codec?.decode(1)).toBe('-1');
+    expect(codec?.encode('-1')).toBe(1);
+  });
+
+  it('reads envelope triggering as Multi, Single, Autoglide (inferred from hardware report)', () => {
+    for (const id of ['ampEnv.triggering', 'modEnv.triggering']) {
+      const codec = codecFor(getParameter(id));
+      expect(codec?.basis).toBe('inferred');
+      expect([0, 1, 2].map((r) => codec?.decode(r))).toEqual(['multi', 'single', 'autoglide']);
+    }
+  });
+
   it('round-trips every mapped parameter through its codec', () => {
     for (const id of [
       'filter.resonance',
@@ -71,18 +86,26 @@ describe('MidiInputHandler', () => {
   it('maps CCs, CC pairs and NRPNs to parameters', () => {
     const h = new MidiInputHandler(1);
     expect(h.handle([0xb0, 82, 90])).toEqual([
-      { kind: 'parameter', id: 'filter.resonance', value: 90 },
+      { kind: 'parameter', id: 'filter.resonance', value: 90, raw: 90 },
     ]);
     expect(h.handle([0xb0, 16, 127])).toEqual([
-      { kind: 'parameter', id: 'filter.frequency', value: 254 },
+      { kind: 'parameter', id: 'filter.frequency', value: 254, raw: 254 },
     ]);
     expect(h.handle([0xb0, 48, 64])).toEqual([
-      { kind: 'parameter', id: 'filter.frequency', value: 255 },
+      { kind: 'parameter', id: 'filter.frequency', value: 255, raw: 255 },
     ]);
     expect(h.handle([0xb0, 99, 0])).toEqual([]);
     expect(h.handle([0xb0, 98, 107])).toEqual([]);
     expect(h.handle([0xb0, 6, 1])).toEqual([
-      { kind: 'parameter', id: 'voice.paraphonic', value: true },
+      { kind: 'parameter', id: 'voice.paraphonic', value: true, raw: 1 },
+    ]);
+  });
+
+  it('reports switch values no codec knows, so the user can teach them', () => {
+    const h = new MidiInputHandler(1);
+    expect(h.handle([0xb0, 81, 62])).toEqual([{ kind: 'undecoded', id: 'sub.octave', raw: 62 }]);
+    expect(h.handle([0xb0, 81, 1])).toEqual([
+      { kind: 'parameter', id: 'sub.octave', value: '-1', raw: 1 },
     ]);
   });
 

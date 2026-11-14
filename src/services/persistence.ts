@@ -39,6 +39,7 @@ export async function initPersistence(): Promise<void> {
         preferredInputName: midiSettings.preferredInputName,
         preferredOutputName: midiSettings.preferredOutputName,
         verification: midiSettings.verification,
+        learnedValues: midiSettings.learnedValues ?? {},
       });
     }
     const parsedProgress = parseProgress(progress);
@@ -65,7 +66,8 @@ export async function initPersistence(): Promise<void> {
       s.send === prev.send &&
       s.preferredInputName === prev.preferredInputName &&
       s.preferredOutputName === prev.preferredOutputName &&
-      s.verification === prev.verification
+      s.verification === prev.verification &&
+      s.learnedValues === prev.learnedValues
     )
       return;
     const payload: StoredMidiSettings = {
@@ -75,6 +77,7 @@ export async function initPersistence(): Promise<void> {
       preferredInputName: s.preferredInputName,
       preferredOutputName: s.preferredOutputName,
       verification: s.verification,
+      learnedValues: s.learnedValues,
     };
     void writeKey('preferences', 'midi', payload).catch(reportError);
   });

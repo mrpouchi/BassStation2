@@ -3,11 +3,14 @@ import { MidiInputHandler } from '@/engine/midi/MidiInputHandler';
 import { MidiOutputHandler } from '@/engine/midi/MidiOutputHandler';
 import { codecFor } from '@/engine/midi/MidiParameterMapper';
 import { detectWebMidiSupport } from '@/engine/midi/support';
-import { findParameter } from '@/engine/parameters/registry';
+import { findParameter, selectorRoutingFor } from '@/engine/parameters/registry';
 import { PARAMETERS } from '@/data/synthesizer/parameters';
 import { useHardwareUiStore } from '@/stores/hardwareUiStore';
 import { useMidiStore } from '@/stores/midiStore';
 import { useSynthStore } from '@/stores/synthStore';
+
+/** Messages for grouped targets closer than this are treated as one gesture (Env Select on Amp+Mod). */
+const GROUP_WINDOW_MS = 250;
 
 /**
  * Orchestrates the MIDI modules and the app stores:
@@ -124,18 +127,53 @@ export class MidiController {
       });
     }
     for (const ev of events) {
-      if (ev.kind === 'parameter') {
+      if (ev.kind === 'parameter' || ev.kind === 'undecoded') {
+        // A value the user taught for this device wins over the generic codec.
+        const learned = ev.raw !== undefined ? midi.learnedValues[ev.id]?.[ev.raw] : undefined;
+        const value = learned ?? (ev.kind === 'parameter' ? ev.value : undefined);
+        if (value === undefined) {
+          if (ev.kind === 'undecoded') midi.noteUnknown(ev.id, ev.raw);
+          continue;
+        }
         if (midi.listeningFor === ev.id) {
           midi.recordVerification(ev.id, { input: 'pass' });
           midi.set({ listeningFor: null });
         }
-        if (midi.receive) useSynthStore.getState().setValue(ev.id, ev.value, 'midi');
+        if (midi.receive) {
+          this.followSelectors(ev.id);
+          useSynthStore.getState().setValue(ev.id, value, 'midi');
+        }
       } else if (ev.kind === 'note' && ev.on && midi.receive) {
         useHardwareUiStore.getState().pressKey(-1, ev.note);
       } else if (ev.kind === 'program' && midi.receive) {
         useSynthStore.getState().setValue('master.patch', ev.program, 'midi');
       }
     }
+  }
+
+  /** When each routed parameter was last received (for Amp+Mod style group detection). */
+  private lastRouted = new Map<string, number>();
+
+  /**
+   * Hardware routing switches (Osc Select, Env Select, Noise/Ring/Ext, PW source)
+   * send no MIDI. A control's message tells which target it is editing, so the
+   * panel switches are moved to match: e.g. a Ring Mod level message means the
+   * Noise/Ring/Ext switch is on Ring.
+   */
+  private followSelectors(id: string): void {
+    const routing = selectorRoutingFor(id);
+    if (!routing) return;
+    const now = performance.now();
+    this.lastRouted.set(id, now);
+    const group = routing.group;
+    const partnerRecent =
+      group !== null &&
+      group.siblings.some((s) => now - (this.lastRouted.get(s) ?? -Infinity) < GROUP_WINDOW_MS);
+    const selectors = partnerRecent ? group.selectors : (routing.single ?? group?.selectors);
+    if (!selectors) return;
+    const synth = useSynthStore.getState();
+    for (const [via, key] of Object.entries(selectors))
+      if (synth.values[via] !== key) synth.setValue(via, key, 'midi');
   }
 
   private rawSend(bytes: readonly number[]): void {

@@ -38,7 +38,7 @@ npm run dev            # http://localhost:5173
 | `npm run dev`                                           | Development server                                                                            |
 | `npm run build`                                         | Type-check and production build to `dist/`                                                    |
 | `npm run preview`                                       | Serve the production build                                                                    |
-| `npm test`                                              | 256 unit, data and component tests (Vitest)                                                   |
+| `npm test`                                              | 267 unit, data and component tests (Vitest)                                                   |
 | `npm run test:e2e`                                      | 7 end-to-end tests in Chromium (Playwright). Run `npx playwright install chromium` once first |
 | `npm run lint` / `npm run typecheck` / `npm run format` | ESLint, TypeScript, Prettier                                                                  |
 
@@ -154,6 +154,13 @@ A challenge shows a takeaway once solved, links to its related lesson and record
 - **Send** (off by default, opt-in): changes made in the app are sent to the synth. Updates are batched
   once per animation frame, and **changes that came from MIDI are never echoed back**, so there is no
   feedback loop.
+- **Panel switches follow the synth.** Osc Select, Env Select, Noise/Ring/Ext and PW source send no MIDI
+  of their own. When you turn a knob, the synth sends the parameter it is really editing (for example
+  Ring Mod level), and the app moves its own switch to match. If both envelopes arrive together, the app
+  shows Amp+Mod Env.
+- **Teach unknown switch values.** The manual rarely documents what value a switch sends. When the synth
+  sends a value the app does not recognise, the Synth Lab and Hardware page ask which position it means.
+  The answer is remembered for your device and can be forgotten on the Hardware page.
 - "Send current settings to the synth", plus an **activity monitor** that shows raw MIDI bytes.
 - A **compatibility test** for each parameter:
   - "Listen", then move the control on the synth: if the expected parameter arrives, input is verified.
@@ -198,7 +205,8 @@ The app is open about its limits. Here they are in one place:
 - **Patch memories are not simulated.** The Patch/Value buttons edit On-Key values, as on the hardware,
   and the Save button explains that saving happens on the synth or in the Sound Library.
 - **Panel switch positions aren't sent over MIDI** (Osc Select, Env Select, PW source and so on). Novation
-  documents no MIDI message for them.
+  documents no MIDI message for them. The app catches up as soon as you turn a knob they route, but not
+  at the moment you move the switch.
 - **Tested on desktop Chrome.** Other browsers work for everything except Web MIDI (Safari has no Web MIDI
   support). The layout works on phones, but the panel is small there.
 - **English only.** There is no translation layer yet.
@@ -321,7 +329,7 @@ More detail is in [`DEVELOPMENT.md`](DEVELOPMENT.md).
 
 ## Testing
 
-- **256 Vitest tests**:
+- **267 Vitest tests**:
   - registry integrity, such as unique IDs, valid ranges, no conflicting CC numbers, every manual callout
     covered and every routing option covered;
   - visual-engine calibration against the manual's numbers;

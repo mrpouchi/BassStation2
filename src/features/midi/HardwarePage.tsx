@@ -12,6 +12,7 @@ import { effectiveVerification } from '@/engine/midi/verification';
 import { getMidiController } from '@/services/midiController';
 import { selectInputConnected, selectOutputConnected, useMidiStore } from '@/stores/midiStore';
 import styles from './HardwarePage.module.css';
+import { LearnedValuesList } from './LearnSwitchValues';
 
 const STATUS_TEXT: Record<string, { label: string; tone: BadgeTone }> = {
   unsupported: { label: WEB_MIDI_SUPPORT_TEXT.unsupported.label, tone: 'warning' },
@@ -195,6 +196,21 @@ export function HardwarePage() {
               <span className={styles.muted}>Sent {sentCount} parameters.</span>
             )}
           </div>
+        </Card>
+
+        <Card
+          className={styles.full}
+          title="Panel switches and taught values"
+          subtitle="How the Academy keeps its panel in step with yours."
+        >
+          <p className={styles.muted}>
+            Osc Select, Env Select, Noise/Ring/Ext and the Pulse Width source switch send no MIDI of
+            their own, so moving them is invisible to the app. When you then turn a knob, the synth
+            sends the message of the parameter it is really editing (for example Ring Mod level),
+            and the Academy moves its switch to match. On Amp+Mod Env, the faders send both
+            envelopes at once and the app shows Amp+Mod.
+          </p>
+          <LearnedValuesList />
         </Card>
 
         <Card

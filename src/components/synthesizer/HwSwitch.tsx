@@ -1,3 +1,4 @@
+import type { PointerEvent } from 'react';
 import { formatValue } from '@/engine/parameters/registry';
 import styles from './Hardware.module.css';
 import { at } from './layout';
@@ -44,6 +45,19 @@ export function HwSwitch({
   const optionLabel = (v: string) =>
     captions?.[v] ?? def.options.find((o) => o.value === v)?.label ?? v;
   const current = value !== undefined ? formatValue(def, value) : '';
+  /** Move to the position under the pointer, like sliding the real switch. */
+  const jumpTo = (e: PointerEvent<HTMLButtonElement>) => {
+    const r = e.currentTarget.getBoundingClientRect();
+    const length = vertical ? r.height : r.width;
+    if (length <= 0 || count < 2) return;
+    const along = (vertical ? e.clientY - r.top : e.clientX - r.left) / length;
+    // Thumb centres sit between 3/L and 1 - 3/L of the slot (L = slot length in units).
+    const units = count * 7 + 2;
+    const f = (along * units - 3) / (units - 6);
+    const next = Math.min(count - 1, Math.max(0, Math.round(f * (count - 1))));
+    if (next !== index) set(values[next] ?? def.defaultValue);
+    else select();
+  };
 
   const slot = (
     <button
@@ -59,7 +73,26 @@ export function HwSwitch({
       style={vertical ? { height: slotLen, borderRadius: 4 } : { width: slotLen, borderRadius: 4 }}
       aria-label={`${control.label}: ${current}. Activate to switch.`}
       title={`${def.name}: ${current}`}
-      onClick={() => set(values[(index + 1) % count] ?? def.defaultValue)}
+      onPointerDown={(e) => {
+        if (e.button !== 0) return;
+        e.currentTarget.setPointerCapture(e.pointerId);
+        jumpTo(e);
+      }}
+      onPointerMove={(e) => {
+        if (e.currentTarget.hasPointerCapture(e.pointerId)) jumpTo(e);
+      }}
+      onClick={(e) => {
+        // Keyboard activation (Enter/Space) steps; pointer clicks are handled on pointer down.
+        if (e.detail === 0) set(values[(index + 1) % count] ?? def.defaultValue);
+      }}
+      onKeyDown={(e) => {
+        const back = vertical ? 'ArrowUp' : 'ArrowLeft';
+        const fwd = vertical ? 'ArrowDown' : 'ArrowRight';
+        if (e.key !== back && e.key !== fwd) return;
+        e.preventDefault();
+        const next = Math.min(count - 1, Math.max(0, index + (e.key === fwd ? 1 : -1)));
+        if (next !== index) set(values[next] ?? def.defaultValue);
+      }}
       onFocus={select}
     >
       <span

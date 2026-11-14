@@ -73,6 +73,11 @@ can hide them and reveal hints after each check.
   - It only sends changes whose origin is `'ui'` or `'preset'` with a single id, and only when sending is
     enabled. Bulk loads are sent explicitly with `sendPatch()`.
   - It remembers the selected ports by ID and name so it can reattach after a reconnection.
+  - Routing switches send no MIDI, so it follows them: `selectorRoutingFor(id)` (registry) gives the
+    switch positions that make a control reach `id`, and incoming values set those positions. Group
+    targets (Env Select on Amp+Mod) are detected when siblings arrive within 250 ms.
+  - Raw values a codec cannot decode become `undecoded` events. The user can teach their meaning
+    (`useMidiStore.learnedValues`, persisted with the MIDI settings), and taught values override the codec.
 - Verification policy:
   - The registry stays at `requires-testing` until a hardware session confirms a mapping. A test enforces
     this.
@@ -118,14 +123,15 @@ All six phases are implemented. The numbers:
 | Lessons                  | 44 across 8 chapters                         |
 | Challenges               | 18 across 6 types                            |
 | Example presets          | 6                                            |
-| Tests                    | 256 Vitest + 7 Playwright                    |
+| Tests                    | 267 Vitest + 7 Playwright                    |
 
 ## Known limitations
 
 The full list is in the README under "What the app cannot do (yet)". Technical notes:
 
 - The value encodings of CC pairs (8-bit split: MSB = top 7 bits, LSB bit 6 = lowest bit), the bipolar
-  offsets and the enum indexes are inferred.
+  offsets and the enum indexes are inferred. Sub Osc Octave uses the manual's listed order (-2, -1), and
+  envelope triggering uses Multi = 0, Single = 1, Autoglide = 2 from a hardware report (unconfirmed).
 - The duplicate NRPN 87/91 entries (Speed/Sync vs Sync Value) resolve to Speed/Sync on input. This
   ambiguity is pinned by a test.
 - The bundle is ~300 KB of app code plus ~210 KB of vendor code (uncompressed). Route-level code
