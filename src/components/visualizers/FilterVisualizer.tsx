@@ -101,7 +101,7 @@ export function FilterVisualizer() {
             Cutoff <strong>≈ {fc < 1000 ? fc.toFixed(0) : (fc / 1000).toFixed(1) + 'k'} Hz</strong>
           </span>
           <span>
-            Peak <strong>{Math.max(...curve).toFixed(1)} dB</strong>
+            Peak <strong>{(Math.max(...curve) + 0).toFixed(1).replace('-0.0', '0.0')} dB</strong>
           </span>
         </>
       }

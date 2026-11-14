@@ -3,13 +3,9 @@ import { ButtonLink } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { CURRICULUM } from '@/data/lessons/curriculum';
-import { LESSON_ORDER, lessonKey } from '@/data/lessons';
+import { LESSON_ORDER, lessonKey, nextLessonKey } from '@/data/lessons';
 import { useProgressStore } from '@/stores/progressStore';
 import styles from './LearnPage.module.css';
-
-export function nextLessonKey(completed: Record<string, unknown>): string | undefined {
-  return LESSON_ORDER.find((l) => !completed[l.key])?.key;
-}
 
 export function LearnPage() {
   const completed = useProgressStore((s) => s.lessons);

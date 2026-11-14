@@ -44,3 +44,8 @@ export interface LessonRef {
 export const LESSON_ORDER: readonly LessonRef[] = CURRICULUM.flatMap((chapter) =>
   chapter.lessons.map((outline) => ({ chapter, outline, key: lessonKey(chapter.id, outline.id) })),
 );
+
+/** First lesson (in curriculum order) not yet completed. */
+export function nextLessonKey(completed: Record<string, unknown>): string | undefined {
+  return LESSON_ORDER.find((l) => !completed[l.key])?.key;
+}

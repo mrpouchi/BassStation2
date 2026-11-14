@@ -1,4 +1,5 @@
 import { createBrowserRouter, type RouteObject } from 'react-router-dom';
+import { ChallengePage } from '@/features/challenges/ChallengePage';
 import { ChallengesPage } from '@/features/challenges/ChallengesPage';
 import { DashboardPage } from '@/features/dashboard/DashboardPage';
 import { LearnPage } from '@/features/learn/LearnPage';
@@ -17,6 +18,7 @@ export const routes: RouteObject[] = [
       { path: 'learn/:chapterId/:lessonId', element: <LessonPage /> },
       { path: 'synth-lab', element: <SynthLabPage /> },
       { path: 'challenges', element: <ChallengesPage /> },
+      { path: 'challenges/:challengeId', element: <ChallengePage /> },
       { path: 'library', element: <SoundLibraryPage /> },
       { path: '*', element: <NotFoundPage /> },
     ],

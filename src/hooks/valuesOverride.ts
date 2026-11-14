@@ -12,3 +12,10 @@ export const ValuesOverrideContext = createContext<Readonly<Record<string, Param
 export function useValuesOverride() {
   return useContext(ValuesOverrideContext);
 }
+
+/** Presentation options for visualisers (e.g. hide numeric readouts in quizzes). */
+export const VizOptionsContext = createContext<{ hideReadout: boolean }>({ hideReadout: false });
+
+export function useVizOptions() {
+  return useContext(VizOptionsContext);
+}

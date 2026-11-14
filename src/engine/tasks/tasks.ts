@@ -21,7 +21,9 @@ export interface ChoiceOption {
 export type Task =
   | { kind: 'set'; prompt: string; conditions: readonly Condition[] }
   | { kind: 'choice'; prompt: string; options: readonly ChoiceOption[] }
-  | { kind: 'changed'; prompt: string; minChanged: number };
+  | { kind: 'changed'; prompt: string; minChanged: number }
+  /** Identify a control: passes when the inspected parameter is one of `params`. */
+  | { kind: 'select'; prompt: string; params: readonly string[]; feedback: string };
 
 export interface ConditionResult {
   condition: Condition;
@@ -80,6 +82,7 @@ export function evaluateTask(
   task: Task,
   values: Readonly<Record<string, ParameterValue>>,
   choiceIndex?: number,
+  selectedId?: string | null,
 ): TaskResult {
   switch (task.kind) {
     case 'set': {
@@ -100,6 +103,20 @@ export function evaluateTask(
         passed: option?.correct === true,
         results: [],
         message: option ? option.feedback : 'Choose an answer first.',
+      };
+    }
+    case 'select': {
+      const def = selectedId ? findParameter(selectedId) : undefined;
+      const passed =
+        selectedId !== null && selectedId !== undefined && task.params.includes(selectedId);
+      return {
+        passed,
+        results: [],
+        message: !def
+          ? 'Click a control on the panel first. The selected control is shown in the inspector.'
+          : passed
+            ? `Correct: ${def.name}. ${task.feedback}`
+            : `${def.name} is not the one: ${def.description} Try another control.`,
       };
     }
     case 'changed': {

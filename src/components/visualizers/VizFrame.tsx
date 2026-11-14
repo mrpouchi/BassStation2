@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { Badge } from '@/components/ui/Badge';
+import { useVizOptions } from '@/hooks/valuesOverride';
 import styles from './VizFrame.module.css';
 
 interface VizFrameProps {
@@ -12,6 +13,7 @@ interface VizFrameProps {
 
 /** Shared frame making clear that visualisations are theoretical models. */
 export function VizFrame({ title, controls, readout, caption, children }: VizFrameProps) {
+  const { hideReadout } = useVizOptions();
   return (
     <figure className={styles.frame} style={{ margin: 0 }}>
       <div className={styles.head}>
@@ -27,7 +29,7 @@ export function VizFrame({ title, controls, readout, caption, children }: VizFra
         </span>
       </div>
       {children}
-      {readout && <div className={styles.readout}>{readout}</div>}
+      {readout && !hideReadout && <div className={styles.readout}>{readout}</div>}
       <figcaption className={styles.caption}>{caption}</figcaption>
     </figure>
   );

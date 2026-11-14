@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
+import { findParameter } from '@/engine/parameters/registry';
 import { describeCondition, evaluateTask, type Task, type TaskResult } from '@/engine/tasks/tasks';
 import { useSynthStore } from '@/stores/synthStore';
 import styles from './TaskPanel.module.css';
@@ -20,11 +21,12 @@ export function TaskPanel({
   onResult,
 }: TaskPanelProps) {
   const values = useSynthStore((s) => s.values);
+  const selectedId = useSynthStore((s) => s.selectedId);
   const [choice, setChoice] = useState<number | undefined>(undefined);
   const [result, setResult] = useState<TaskResult | null>(null);
 
   const check = () => {
-    const r = evaluateTask(task, values, choice);
+    const r = evaluateTask(task, values, choice, selectedId);
     setResult(r);
     onResult?.(r.passed);
   };
@@ -96,6 +98,15 @@ export function TaskPanel({
             );
           })}
         </div>
+      )}
+
+      {task.kind === 'select' && (
+        <p className={styles.hint}>
+          Selected:{' '}
+          <strong>
+            {selectedId ? (findParameter(selectedId)?.name ?? selectedId) : 'nothing yet'}
+          </strong>
+        </p>
       )}
 
       {task.kind === 'changed' && live === null && (

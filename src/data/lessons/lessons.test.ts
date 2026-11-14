@@ -45,7 +45,7 @@ describe('lesson content', () => {
           expect(ex.options.filter((o) => o.correct)).toHaveLength(1);
           return;
         }
-        if (ex.kind === 'changed') return;
+        if (ex.kind !== 'set') return;
         const init = defaultValues();
         expect(evaluateTask(ex, init).passed, `${key} is solved by Init`).toBe(false);
         // Build a solution from the conditions and check it passes.

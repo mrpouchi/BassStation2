@@ -44,6 +44,12 @@ describe('task engine', () => {
     expect(changedSoundParameters(v).sort()).toEqual(['filter.resonance', 'osc1.waveform']);
     expect(evaluateTask({ kind: 'changed', prompt: '', minChanged: 2 }, v).passed).toBe(true);
   });
+  it('evaluates control identification against the selected parameter', () => {
+    const t: Task = { kind: 'select', prompt: 'p', params: ['filter.frequency'], feedback: 'f' };
+    expect(evaluateTask(t, init, undefined, null).passed).toBe(false);
+    expect(evaluateTask(t, init, undefined, 'filter.resonance').message).toContain('not the one');
+    expect(evaluateTask(t, init, undefined, 'filter.frequency').passed).toBe(true);
+  });
   it('describes conditions with formatted values', () => {
     expect(describeCondition({ param: 'osc2.coarse', op: 'eq', value: 7, hint: '' })).toBe(
       'Osc 2 Coarse = +7.0 st',
