@@ -1,3 +1,4 @@
+import { LocateOnHover } from '@/components/synthesizer/LocateOnHover';
 import { useEffect, useMemo } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ParameterEditor } from '@/components/controls/ParameterEditor';
@@ -119,7 +120,7 @@ export function LessonPage() {
               {lesson.experiment.parameters.map((id) => (
                 <div key={id}>
                   <button type="button" className={styles.editorName} onClick={() => select(id)}>
-                    {getParameter(id).name}
+                    <LocateOnHover id={id}>{getParameter(id).name}</LocateOnHover>
                   </button>
                   <ParameterEditor id={id} />
                 </div>

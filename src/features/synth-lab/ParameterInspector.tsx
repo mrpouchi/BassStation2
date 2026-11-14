@@ -1,3 +1,5 @@
+import { PanelLocator } from '@/components/synthesizer/PanelLocator';
+import { LocateOnHover } from '@/components/synthesizer/LocateOnHover';
 import { Link } from 'react-router-dom';
 import { Badge, type BadgeTone } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -79,6 +81,11 @@ export function ParameterInspector() {
       </div>
 
       <div className={styles.body}>
+        <section className={styles.block} aria-label={t('Where to find it')}>
+          <h3 className={styles.blockTitle}>{t('Where to find it')}</h3>
+          <PanelLocator id={def.id} />
+        </section>
+
         <section className={styles.block}>
           <ParameterEditor id={def.id} />
           <div>
@@ -139,7 +146,7 @@ export function ParameterInspector() {
                 const rel = findParameter(id);
                 return rel ? (
                   <button key={id} type="button" className={styles.chip} onClick={() => select(id)}>
-                    {rel.name}
+                    <LocateOnHover id={id}>{rel.name}</LocateOnHover>
                   </button>
                 ) : null;
               })}

@@ -4,6 +4,7 @@ import { usePersistenceStore } from '@/stores/persistenceStore';
 import { parseMidiSettings, useMidiStore, type StoredMidiSettings } from '@/stores/midiStore';
 import { parseProgress, serializeProgress, useProgressStore } from '@/stores/progressStore';
 import { useSynthStore } from '@/stores/synthStore';
+import { autoConnectMidi } from './midiController';
 import { loadPresets } from './presetRepository';
 import { readKey, writeKey } from './storage/db';
 
@@ -44,6 +45,10 @@ export async function initPersistence(): Promise<void> {
         learnedValues: midiSettings.learnedValues ?? {},
       });
     }
+    // Reconnect automatically after every reload (see autoConnectMidi).
+    void autoConnectMidi(
+      Boolean(midiSettings?.preferredInputName || midiSettings?.preferredOutputName),
+    );
     const parsedProgress = parseProgress(progress);
     if (parsedProgress) useProgressStore.getState().load(parsedProgress);
     if (isThemePreference(theme)) usePreferencesStore.getState().setTheme(theme);

@@ -1,3 +1,4 @@
+import { LocateOnHover } from '@/components/synthesizer/LocateOnHover';
 import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { findParameter } from '@/engine/parameters/registry';
@@ -59,7 +60,11 @@ export function TaskPanel({
                   {met ? '✓' : checked ? '!' : ''}
                 </span>
                 <span>
-                  {revealTargets ? describeCondition(c) : met ? describeCondition(c) : c.hint}
+                  {revealTargets || met ? (
+                    <LocateOnHover id={c.param}>{describeCondition(c)}</LocateOnHover>
+                  ) : (
+                    c.hint
+                  )}
                   {r && (
                     <span className={styles.hint}>{t('Now: {value}', { value: r.current })}</span>
                   )}

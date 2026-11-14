@@ -1,3 +1,4 @@
+import { LocateOnHover } from '@/components/synthesizer/LocateOnHover';
 import { ON_KEY_LAYOUT } from '@/data/synthesizer/onKeyLayout';
 import { formatValue, parametersOnKey } from '@/engine/parameters/registry';
 import { useSynthStore } from '@/stores/synthStore';
@@ -47,7 +48,7 @@ export function OnKeyTab() {
                   >
                     <span>
                       {presses > 1 && <span className="mono">{presses}× </span>}
-                      {p.name}
+                      <LocateOnHover id={p.id}>{p.name}</LocateOnHover>
                     </span>
                     <span className="mono">{v === undefined ? '—' : formatValue(p, v)}</span>
                   </button>

@@ -1,3 +1,4 @@
+import { LocateOnHover } from '@/components/synthesizer/LocateOnHover';
 import { useMemo, useState } from 'react';
 import { Badge } from '@/components/ui/Badge';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -94,7 +95,7 @@ export function ParametersTab() {
                     onClick={() => select(p.id)}
                   >
                     <span className={styles.rowName}>
-                      {p.name}
+                      <LocateOnHover id={p.id}>{p.name}</LocateOnHover>
                       <span className={styles.rowSub}>{p.description}</span>
                     </span>
                     <span className={`${styles.rowValue} mono`}>

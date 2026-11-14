@@ -166,6 +166,16 @@ describe('MidiController', () => {
     });
   });
 
+  it('selects the parameter moved on the synth, but not performance inputs', async () => {
+    const { controller, input } = setup();
+    await controller.connect();
+    input.emit([0xb0, 82, 70]); // Resonance
+    expect(useSynthStore.getState().selectedId).toBe('filter.resonance');
+    input.emit([0xb0, 1, 90]); // Mod wheel
+    expect(useSynthStore.getState().selectedId).toBe('filter.resonance');
+    expect(useSynthStore.getState().values['performance.modWheel']).toBe(90);
+  });
+
   it('asks about unknown switch values and then uses what the user taught', async () => {
     const { controller, input } = setup();
     await controller.connect();

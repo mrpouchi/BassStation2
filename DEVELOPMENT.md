@@ -84,6 +84,16 @@ can hide them and reveal hints after each check.
   - Users' own results (`useMidiStore.verification`) are displayed separately as "(your device)" through
     `effectiveVerification()`.
 
+### Panel map and locator
+
+- `components/synthesizer/panelMap.ts` holds the position of every physical control (and the key
+  geometry). The virtual panel and the locator both read it; a test checks every control has a position.
+- `locate.ts` turns a parameter into the controls to touch, switches to set first (from
+  `selectorRoutingFor`), On-Key key and Function, plus translated steps. `PanelLocator` draws it;
+  `LocateOnHover` shows it in a tooltip (portal, fixed position) around any parameter name.
+- `autoConnectMidi()` connects at startup when the MIDI permission is already granted (or the synth was
+  used before), without ever prompting on a first visit.
+
 ### 5. Languages (`src/i18n`)
 
 - `useLocaleStore` holds `'en' | 'fr'`: detected from `navigator.languages` at startup and saved in
@@ -140,7 +150,7 @@ All six phases are implemented. The numbers:
 | Lessons                  | 44 across 8 chapters                         |
 | Challenges               | 18 across 6 types                            |
 | Example presets          | 6                                            |
-| Tests                    | 287 Vitest + 7 Playwright                    |
+| Tests                    | 293 Vitest + 7 Playwright                    |
 
 ## Known limitations
 

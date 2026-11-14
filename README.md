@@ -38,7 +38,7 @@ npm run dev            # http://localhost:5173
 | `npm run dev`                                           | Development server                                                                            |
 | `npm run build`                                         | Type-check and production build to `dist/`                                                    |
 | `npm run preview`                                       | Serve the production build                                                                    |
-| `npm test`                                              | 287 unit, data and component tests (Vitest)                                                   |
+| `npm test`                                              | 293 unit, data and component tests (Vitest)                                                   |
 | `npm run test:e2e`                                      | 7 end-to-end tests in Chromium (Playwright). Run `npx playwright install chromium` once first |
 | `npm run lint` / `npm run typecheck` / `npm run format` | ESLint, TypeScript, Prettier                                                                  |
 
@@ -154,6 +154,11 @@ A challenge shows a takeaway once solved, links to its related lesson and record
 - **Send** (off by default, opt-in): changes made in the app are sent to the synth. Updates are batched
   once per animation frame, and **changes that came from MIDI are never echoed back**, so there is no
   feedback loop.
+- **Connects by itself.** Once you have allowed MIDI for the site, the app reconnects to the Bass
+  Station II on every reload, and picks it up as soon as it is plugged in. No click needed.
+- **Moving a control on the synth selects it in the app**: the inspector shows the parameter, its value,
+  and where it sits on the panel. The virtual display shows it too. Wheels and pressure do not steal the
+  selection.
 - **Panel switches follow the synth.** Osc Select, Env Select, Noise/Ring/Ext and PW source send no MIDI
   of their own. When you turn a knob, the synth sends the parameter it is really editing (for example
   Ring Mod level), and the app moves its own switch to match. If both envelopes arrive together, the app
@@ -169,6 +174,10 @@ A challenge shows a takeaway once solved, links to its related lesson and record
 
 ### Everywhere
 
+- **“Where to find it” maps.** Hover any parameter name (lessons, Learning View, reference, inspector,
+  exercise targets) to see a small map of the panel with the control highlighted. Switches to set first
+  (Osc Select, Env Select…) are marked in blue. On-Key functions show the Function button and the key.
+  The inspector always shows this map for the selected parameter.
 - **English and French.** The whole app is translated: interface, 44 lessons, 18 challenges, the 114
   parameter explanations, controls, glossary and examples. It starts in your browser’s language and
   remembers your choice (sidebar: Language · Langue). Labels printed on the hardware (Cutoff, Osc Select,
@@ -334,7 +343,7 @@ More detail is in [`DEVELOPMENT.md`](DEVELOPMENT.md).
 
 ## Testing
 
-- **287 Vitest tests**:
+- **293 Vitest tests**:
   - registry integrity, such as unique IDs, valid ranges, no conflicting CC numbers, every manual callout
     covered and every routing option covered;
   - visual-engine calibration against the manual's numbers;

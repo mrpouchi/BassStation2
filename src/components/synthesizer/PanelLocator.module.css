@@ -1,0 +1,98 @@
+.figure {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+/* The instrument is always dark, in both themes. */
+.map {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+.body {
+  fill: #1c1d21;
+  stroke: #33353b;
+  stroke-width: 2;
+}
+.bar {
+  fill: #4fb8e6;
+}
+.barLabel {
+  fill: #0d2a38;
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-anchor: middle;
+}
+.dot {
+  fill: #6b7079;
+}
+.keyWhite {
+  fill: #e9eaec;
+}
+.keyBlack {
+  fill: #121316;
+}
+.keyLit {
+  fill: #ff8a3d;
+}
+.target {
+  fill: #ff8a3d;
+}
+.ring {
+  fill: none;
+  stroke: #ff8a3d;
+  stroke-width: 4;
+}
+.pulse {
+  fill: none;
+  stroke: #ff8a3d;
+  stroke-width: 3;
+  opacity: 0.5;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: pulse 1.4s ease-out infinite;
+}
+.selector {
+  fill: #4fb8e6;
+}
+.ringSelector {
+  fill: none;
+  stroke: #4fb8e6;
+  stroke-width: 3;
+  stroke-dasharray: 5 4;
+}
+.steps {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: var(--text-sm);
+  color: var(--text);
+}
+@keyframes pulse {
+  from {
+    transform: scale(0.7);
+    opacity: 0.7;
+  }
+  to {
+    transform: scale(1.4);
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pulse {
+    animation: none;
+  }
+}
+
+.tag {
+  fill: #ff8a3d;
+}
+.tagText {
+  fill: #1c1d21;
+  font-size: 12px;
+  font-weight: 700;
+  text-anchor: middle;
+}

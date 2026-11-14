@@ -546,4 +546,19 @@ export const FR_UI: Readonly<Record<string, string>> = {
     '{n} valeurs de paramètres inconnues ou invalides ont été ignorées.',
   '{n} values': '{n} valeurs',
   '{solved} of {total} solved': '{solved} résolu(s) sur {total}',
+  'Set {control} to {value}.': 'Mettez {control} sur {value}.',
+  '{control} in the {section} section.': '{control}, dans la section {section}.',
+  'Hold Function and turn {control}.': 'Maintenez Function et tournez {control}.',
+  'Press Function, then the {key} key {n} times, then ◀ ▶.':
+    'Appuyez sur Function, puis {n} fois sur la touche {key}, puis utilisez ◀ ▶.',
+  'Press Function, then the {key} key, then ◀ ▶.':
+    'Appuyez sur Function, puis sur la touche {key}, puis utilisez ◀ ▶.',
+  'Not on the panel: reachable over MIDI only.':
+    'Pas sur le panneau : accessible uniquement en MIDI.',
+  'No dedicated control on the panel.': 'Pas de commande dédiée sur le panneau.',
+  'Where it is on the panel: {steps}': 'Emplacement sur le panneau : {steps}',
+  'Where to find it': 'Où le trouver',
+  'middle C': 'do central',
+  'low {note}': '{note} grave',
+  'high {note}': '{note} aigu',
 };

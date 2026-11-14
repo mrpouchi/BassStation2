@@ -6,34 +6,8 @@ import { useHardwareUiStore } from '@/stores/hardwareUiStore';
 import { useSynthStore } from '@/stores/synthStore';
 import styles from './Hardware.module.css';
 import { KEYBOARD, PANEL } from './layout';
+import { KEYS, type KeyGeom } from './panelMap';
 import { t } from '@/i18n/t';
-
-const WHITE_PATTERN = [0, 2, 4, 5, 7, 9, 11];
-const BLACK_OFFSETS: Record<number, number> = { 1: 0, 3: 1, 6: 3, 8: 4, 10: 5 };
-
-interface KeyGeom {
-  index: number;
-  black: boolean;
-  center: number; // image px
-  left: number;
-  width: number;
-}
-
-const WHITE_W = (KEYBOARD.x2 - KEYBOARD.x1) / 15;
-const BLACK_W = WHITE_W * 0.6;
-
-const KEYS: readonly KeyGeom[] = Array.from({ length: 25 }, (_, index) => {
-  const octave = Math.floor(index / 12);
-  const pc = index % 12;
-  const blackAfter = BLACK_OFFSETS[pc];
-  if (blackAfter === undefined) {
-    const whiteIndex = octave * 7 + WHITE_PATTERN.indexOf(pc);
-    const left = KEYBOARD.x1 + whiteIndex * WHITE_W;
-    return { index, black: false, center: left + WHITE_W / 2, left, width: WHITE_W };
-  }
-  const boundary = KEYBOARD.x1 + (octave * 7 + blackAfter + 1) * WHITE_W;
-  return { index, black: true, center: boundary, left: boundary - BLACK_W / 2, width: BLACK_W };
-});
 
 const GROUPS: { label: string; from: number; to: number }[] = [
   { label: 'Mod Wheel', from: 0, to: 3 },

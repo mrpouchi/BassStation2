@@ -1,4 +1,5 @@
 import { SECTION_BARS, at, span } from './layout';
+import { pos } from './panelMap';
 import { lfoHz } from '@/engine/visuals/calibration';
 import { parametersOnKey, stepValue } from '@/engine/parameters/registry';
 import { num, useSynthValues } from '@/hooks/useSynthValues';
@@ -80,7 +81,7 @@ export function HardwarePanel() {
         <div className={styles.divider} style={span(190, 884, 240)} />
 
         {/* ---------------- Master ---------------- */}
-        <HwKnob controlId="master.volume" x={240} y={185} />
+        <HwKnob controlId="master.volume" {...pos('master.volume')} />
         <div className={styles.place} style={at(311, 178)}>
           <LedDisplay />
         </div>
@@ -129,34 +130,31 @@ export function HardwarePanel() {
         </div>
 
         {/* ---------------- Oscillators ---------------- */}
-        <HwKnob controlId="osc.coarse" x={382} y={182} />
+        <HwKnob controlId="osc.coarse" {...pos('osc.coarse')} />
         <HwSelectButton
           controlId="osc.range"
-          x={384}
-          y={218}
+          {...pos('osc.range')}
           layout="row-above"
           label="Range"
           captions={RANGE_LEDS}
         />
-        <HwKnob controlId="osc.fine" x={421} y={182} />
+        <HwKnob controlId="osc.fine" {...pos('osc.fine')} />
         <HwSelectButton
           controlId="osc.waveform"
-          x={422}
-          y={218}
+          {...pos('osc.waveform')}
           layout="row-above"
           label="Waveform"
           captions={WAVE_LEDS}
         />
-        <HwKnob controlId="osc.modEnvDepth" x={462} y={182} />
-        <HwKnob controlId="osc.lfo1Depth" x={500} y={182} />
+        <HwKnob controlId="osc.modEnvDepth" {...pos('osc.modEnvDepth')} />
+        <HwKnob controlId="osc.lfo1Depth" {...pos('osc.lfo1Depth')} />
         <span className={`${styles.place} ${styles.label} ${styles.dim}`} style={at(481, 203)}>
           ⌊—— Pitch ——⌋
         </span>
-        <HwKnob controlId="osc.pulseWidth" x={538} y={182} />
+        <HwKnob controlId="osc.pulseWidth" {...pos('osc.pulseWidth')} />
         <HwSwitch
           controlId="osc.pwSource"
-          x={540}
-          y={219}
+          {...pos('osc.pwSource')}
           orientation="horizontal"
           captions={{ 'mod-env': 'Mod Env', lfo2: 'LFO 2', manual: 'Manual' }}
           compact
@@ -164,8 +162,7 @@ export function HardwarePanel() {
         />
         <HwSwitch
           controlId="osc.select"
-          x={476}
-          y={225}
+          {...pos('osc.select')}
           orientation="horizontal"
           captions={{ osc1: '1', osc2: '2' }}
           leds
@@ -185,8 +182,7 @@ export function HardwarePanel() {
         {/* ---------------- Sub oscillator ---------------- */}
         <HwSwitch
           controlId="sub.octave"
-          x={578}
-          y={176}
+          {...pos('sub.octave')}
           orientation="vertical"
           leds
           labelSide="before"
@@ -197,8 +193,7 @@ export function HardwarePanel() {
         </span>
         <HwSwitch
           controlId="sub.wave"
-          x={578}
-          y={218}
+          {...pos('sub.wave')}
           orientation="vertical"
           leds
           labelSide="before"
@@ -206,24 +201,22 @@ export function HardwarePanel() {
         />
 
         {/* ---------------- Mixer ---------------- */}
-        <HwKnob controlId="mixer.osc1" x={609} y={178} label="Osc 1" />
-        <HwKnob controlId="mixer.osc2" x={663} y={178} label="Osc 2" />
-        <HwKnob controlId="mixer.sub" x={609} y={214} label="Sub Osc" />
+        <HwKnob controlId="mixer.osc1" {...pos('mixer.osc1')} label="Osc 1" />
+        <HwKnob controlId="mixer.osc2" {...pos('mixer.osc2')} label="Osc 2" />
+        <HwKnob controlId="mixer.sub" {...pos('mixer.sub')} label="Sub Osc" />
         <HwSwitch
           controlId="mixer.source"
-          x={636}
-          y={203}
+          {...pos('mixer.source')}
           orientation="vertical"
           order={['ext', 'ring', 'noise']}
           captions={{ ext: 'Ext', ring: 'Ring', noise: 'Noise' }}
         />
-        <HwKnob controlId="mixer.sourceLevel" x={663} y={214} label="Level" />
+        <HwKnob controlId="mixer.sourceLevel" {...pos('mixer.sourceLevel')} label="Level" />
 
         {/* ---------------- Filter ---------------- */}
         <HwSwitch
           controlId="filter.type"
-          x={710}
-          y={168}
+          {...pos('filter.type')}
           orientation="horizontal"
           leds
           captions={{ classic: 'Classic', acid: 'Acid' }}
@@ -231,8 +224,7 @@ export function HardwarePanel() {
         />
         <HwSwitch
           controlId="filter.slope"
-          x={710}
-          y={198}
+          {...pos('filter.slope')}
           orientation="horizontal"
           leds
           captions={{ '12': '12dB', '24': '24dB' }}
@@ -240,53 +232,54 @@ export function HardwarePanel() {
         />
         <HwSwitch
           controlId="filter.shape"
-          x={710}
-          y={226}
+          {...pos('filter.shape')}
           orientation="horizontal"
           leds
           captions={{ lp: 'LP', bp: 'BP', hp: 'HP' }}
           title="Shape"
         />
-        <HwKnob controlId="filter.overdrive" x={755} y={178} />
-        <HwKnob controlId="filter.resonance" x={795} y={178} />
-        <HwKnob controlId="filter.modEnvDepth" x={755} y={214} />
-        <HwKnob controlId="filter.lfo2Depth" x={795} y={214} />
-        <HwKnob controlId="filter.frequency" x={848} y={195} size="lg" />
+        <HwKnob controlId="filter.overdrive" {...pos('filter.overdrive')} />
+        <HwKnob controlId="filter.resonance" {...pos('filter.resonance')} />
+        <HwKnob controlId="filter.modEnvDepth" {...pos('filter.modEnvDepth')} />
+        <HwKnob controlId="filter.lfo2Depth" {...pos('filter.lfo2Depth')} />
+        <HwKnob controlId="filter.frequency" {...pos('filter.frequency')} size="lg" />
 
         {/* ---------------- Arpeggiator ---------------- */}
-        <HwKnob controlId="arp.tempo" x={240} y={262} scale={['40', '240']} />
-        <HwKnob controlId="arp.rhythm" x={290} y={262} scale={['1', '32']} />
-        <HwKnob controlId="arp.mode" x={330} y={260} size="xs" />
-        <HwKnob controlId="arp.octaves" x={330} y={292} size="xs" label="Arp Octaves / SEQ" />
-        <HwToggleButton controlId="arp.on" x={248} y={299} ledSide="left" />
-        <HwToggleButton controlId="arp.latch" x={282} y={299} ledSide="right" />
+        <HwKnob controlId="arp.tempo" {...pos('arp.tempo')} scale={['40', '240']} />
+        <HwKnob controlId="arp.rhythm" {...pos('arp.rhythm')} scale={['1', '32']} />
+        <HwKnob controlId="arp.mode" {...pos('arp.mode')} size="xs" />
+        <HwKnob
+          controlId="arp.octaves"
+          {...pos('arp.octaves')}
+          size="xs"
+          label="Arp Octaves / SEQ"
+        />
+        <HwToggleButton controlId="arp.on" {...pos('arp.on')} ledSide="left" />
+        <HwToggleButton controlId="arp.latch" {...pos('arp.latch')} ledSide="right" />
 
         {/* ---------------- Portamento ---------------- */}
-        <HwKnob controlId="portamento.glideTime" x={379} y={264} />
+        <HwKnob controlId="portamento.glideTime" {...pos('portamento.glideTime')} />
 
         {/* ---------------- LFOs ---------------- */}
         <HwSelectButton
           controlId="lfo1.wave"
-          x={418}
-          y={268}
+          {...pos('lfo1.wave')}
           layout="column-right"
           tall
           captions={LFO_LEDS}
           blinkHz={blink(1)}
         />
-        <HwKnob controlId="lfo1.knob" x={455} y={262} />
+        <HwKnob controlId="lfo1.knob" {...pos('lfo1.knob')} />
         <HwSwitch
           controlId="lfo.delaySpeed"
-          x={479}
-          y={288}
+          {...pos('lfo.delaySpeed')}
           orientation="vertical"
           captions={{ delay: 'Delay', speed: 'Speed' }}
         />
-        <HwKnob controlId="lfo2.knob" x={505} y={262} />
+        <HwKnob controlId="lfo2.knob" {...pos('lfo2.knob')} />
         <HwSelectButton
           controlId="lfo2.wave"
-          x={538}
-          y={268}
+          {...pos('lfo2.wave')}
           layout="column-left"
           tall
           captions={LFO_LEDS}
@@ -296,21 +289,19 @@ export function HardwarePanel() {
         {/* ---------------- Envelopes ---------------- */}
         <HwSwitch
           controlId="env.select"
-          x={590}
-          y={272}
+          {...pos('env.select')}
           orientation="vertical"
           labelSide="before"
           captions={{ amp: 'Amp Env', mod: 'Mod Env', both: 'Amp+Mod Env' }}
           title="Env Select"
         />
-        <HwFader controlId="env.attack" x={634} y={276} />
-        <HwFader controlId="env.decay" x={662} y={276} />
-        <HwFader controlId="env.sustain" x={690} y={276} />
-        <HwFader controlId="env.release" x={718} y={276} />
+        <HwFader controlId="env.attack" {...pos('env.attack')} />
+        <HwFader controlId="env.decay" {...pos('env.decay')} />
+        <HwFader controlId="env.sustain" {...pos('env.sustain')} />
+        <HwFader controlId="env.release" {...pos('env.release')} />
         <HwSwitch
           controlId="env.triggering"
-          x={768}
-          y={274}
+          {...pos('env.triggering')}
           orientation="vertical"
           leds
           order={['autoglide', 'single', 'multi']}
@@ -318,8 +309,8 @@ export function HardwarePanel() {
         />
 
         {/* ---------------- Effects ---------------- */}
-        <HwKnob controlId="effects.distortion" x={823} y={262} />
-        <HwKnob controlId="effects.oscFilterMod" x={859} y={262} />
+        <HwKnob controlId="effects.distortion" {...pos('effects.distortion')} />
+        <HwKnob controlId="effects.oscFilterMod" {...pos('effects.oscFilterMod')} />
 
         {/* ---------------- Keyboard area ---------------- */}
         <div className={styles.place} style={at(232, 331)}>
@@ -372,8 +363,8 @@ export function HardwarePanel() {
         <span className={`${styles.place} ${styles.label} ${styles.dim}`} style={at(254, 374)}>
           Octave · Reset
         </span>
-        <HwWheel controlId="performance.pitchWheel" x={232} y={455} spring />
-        <HwWheel controlId="performance.modWheel" x={282} y={455} />
+        <HwWheel controlId="performance.pitchWheel" {...pos('performance.pitchWheel')} spring />
+        <HwWheel controlId="performance.modWheel" {...pos('performance.modWheel')} />
         <HwKeyboard />
       </div>
     </div>

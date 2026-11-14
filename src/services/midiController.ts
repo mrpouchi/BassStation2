@@ -141,7 +141,9 @@ export class MidiController {
         }
         if (midi.receive) {
           this.followSelectors(ev.id);
-          useSynthStore.getState().setValue(ev.id, value, 'midi');
+          const synth = useSynthStore.getState();
+          synth.setValue(ev.id, value, 'midi');
+          this.focus(ev.id);
         }
       } else if (ev.kind === 'note' && ev.on && midi.receive) {
         useHardwareUiStore.getState().pressKey(-1, ev.note);
@@ -149,6 +151,19 @@ export class MidiController {
         useSynthStore.getState().setValue('master.patch', ev.program, 'midi');
       }
     }
+  }
+
+  /**
+   * Moving a control on the synth selects its parameter, so the inspector shows
+   * what it is and where it sits on the panel, and the virtual display shows it.
+   * Performance inputs (wheels, pressure, pedal) do not steal the selection.
+   */
+  private focus(id: string): void {
+    const def = findParameter(id);
+    if (!def || def.scope === 'performance') return;
+    const synth = useSynthStore.getState();
+    if (synth.selectedId !== id) synth.select(id);
+    useHardwareUiStore.getState().touch(id);
   }
 
   /** When each routed parameter was last received (for Amp+Mod style group detection). */
@@ -221,6 +236,25 @@ export class MidiController {
     this.unsubscribers.forEach((u) => u());
     this.unsubscribers = [];
     this.attachInput(null);
+  }
+}
+
+/**
+ * Connects at startup without a click when the browser already allows MIDI for
+ * this site (or a synth was used here before), so the Bass Station II is picked
+ * up again after every reload, and as soon as it is plugged in. Never triggers
+ * a permission prompt on a first visit.
+ */
+export async function autoConnectMidi(usedBefore: boolean): Promise<void> {
+  if (typeof navigator === 'undefined' || typeof navigator.requestMIDIAccess !== 'function') return;
+  let state: PermissionState | 'unknown' = 'unknown';
+  try {
+    state = (await navigator.permissions.query({ name: 'midi' as PermissionName })).state;
+  } catch {
+    // Some browsers cannot query the MIDI permission; fall back to past use.
+  }
+  if (state === 'granted' || (state === 'unknown' && usedBefore)) {
+    await getMidiController().connect();
   }
 }
 

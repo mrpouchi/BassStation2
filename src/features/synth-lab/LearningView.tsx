@@ -1,3 +1,4 @@
+import { LocateOnHover } from '@/components/synthesizer/LocateOnHover';
 import type { ReactNode } from 'react';
 import { ParameterEditor } from '@/components/controls/ParameterEditor';
 import { Card } from '@/components/ui/Card';
@@ -125,7 +126,7 @@ function ParamRow({ id }: { id: string }) {
         onClick={() => select(id)}
         title={t('Explain this parameter')}
       >
-        {def.name}
+        <LocateOnHover id={id}>{def.name}</LocateOnHover>
       </button>
       <ParameterEditor id={id} />
     </div>
